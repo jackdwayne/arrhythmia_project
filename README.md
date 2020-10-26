@@ -12,8 +12,8 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
         Windows:
         > https://www.python.org/downloads/
         Ubuntu:
-        >sudo apt install python3
-        >python ––version
+        >$ sudo apt install python3
+        >$ python ––version
 
     ###### Install Node.JS:
         Windows:
@@ -27,13 +27,13 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
 
     ###### Install Django:
         Windows:
-        >py -m pip install Django
+        >$ py -m pip install Django
         Make sure to update path variables to run the djando-admin script
         Ubuntu:
         >$ sudo apt install python3-django
 
     ###### Clone repo:
-        >git clone https://github.com/jackdwayne/arrhythmia_project.git
+        >$ git clone https://github.com/jackdwayne/arrhythmia_project.git
 
     ###### Dependancy Setup:
     In terminal or code cd to frontend folder
@@ -44,7 +44,7 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
 
     ###### How to run locally:
     cd in one terminal to backend:
-        >python manage.py runserver
+        >$ python manage.py runserver
     cd in another terminal to frontend:
         >$ yarn start
         or
