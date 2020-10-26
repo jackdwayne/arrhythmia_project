@@ -29,6 +29,8 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
         Windows:
         >py -m pip install Django
         Make sure to update path variables to run the djando-admin script
+        Ubuntu:
+        >$ sudo apt install python3-django
 
     ###### Clone repo:
         >git clone https://github.com/jackdwayne/arrhythmia_project.git
