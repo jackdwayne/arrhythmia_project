@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from arrhythmias.models import UserModel
+from arrhythmias.models import *
 class UserType(DjangoObjectType):
     class Meta:
         model = UserModel
@@ -33,6 +33,29 @@ class CreateUser(graphene.Mutation):
             last_name=user.last_name,
             user_type=user.user_type,
         )
+
+class CarType(DjangoObjectType):
+    class Meta:
+        model = CarModel
+
+class CreateCar(graphene.Mutation):
+    id = graphene.Int()
+    year = graphene.String()
+
+
+    class Arguments:
+        year = graphene.String()
+
+
+    def mutate(self, info, year):
+        car = CarModel(year=year)
+        user.save()
+
+        return CreateCar(
+            id=car.id,
+            year=car.year
+        )
+
 
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()

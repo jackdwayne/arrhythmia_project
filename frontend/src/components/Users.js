@@ -21,6 +21,7 @@ const QUERY_USERS = gql`
     // should handle loading status
     if (loading) return <p>Loading...</p>;
 
+
     return data.users.map(({ id, name, lastName, userType }) => (
         <div key={id}>
             <p>
@@ -45,7 +46,7 @@ export function CreateUser() {
 
     let inputName, inputLastName, inputUserType; 
 
-    const [createUser] = useMutation(CREATE_USER); 
+    const [createUser, {data}] = useMutation(CREATE_USER); 
 
     return (
         <div>
