@@ -104,4 +104,4 @@ dist
 .tern-port
 
 # pycache
-__pycache__
+__pycache__/
