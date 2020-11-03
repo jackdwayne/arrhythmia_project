@@ -10,7 +10,6 @@ import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -19,6 +18,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { mainListItems } from './listItems';
 import Chart from './Chart';
+import PatientTable from './Patient';
+import {UserInfo, CreateUser} from './Users';
 
 function Copyright() {
   return (
@@ -141,7 +142,7 @@ export default function Dashboard() {
           </IconButton>
           {/*title on top of dash*/}
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Arrhythmias
+            Visualizing Arrhythmia: 420 Capstone Project
           </Typography>
           <IconButton color="inherit">
           </IconButton>
@@ -178,6 +179,10 @@ export default function Dashboard() {
               </Paper>
             </Grid>
           </Grid>
+          <PatientTable>
+          </PatientTable>
+          <CreateUser/>
+          <UserInfo/>
           <Box pt={4}>
             <Copyright />
           </Box>
