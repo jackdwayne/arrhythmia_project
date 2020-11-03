@@ -20,6 +20,7 @@ import { mainListItems } from './listItems';
 import Chart from './Chart';
 import PatientTable from './Patient';
 import {UserInfo, CreateUser} from './Users';
+import Title from './Title';
 
 function Copyright() {
   return (
@@ -171,10 +172,12 @@ export default function Dashboard() {
             {/* Chart */}
             <Grid item xs={12} md={10} lg={12}>
               <Paper className={fixedHeightPaper}>
+                <Title>ML II</Title>
                 <Chart />
               </Paper>
               <Divider />
               <Paper className={fixedHeightPaper}>
+                <Title>V1</Title>
                 <Chart />
               </Paper>
             </Grid>
