@@ -5,7 +5,6 @@ WORKDIR /app/frontend
 
 # Install app dependencies
 COPY package*.json /app/frontend
-
 RUN npm install
 
 # Uncomment to build code for  production
