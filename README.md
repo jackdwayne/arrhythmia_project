@@ -54,3 +54,19 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
         or
         >$ npm start
 
+## Building Docker Image
+
+Assuming docker is installed in your system:  
+
+    ```bash
+    # To build an image
+    docker-compose build
+    # To run the image
+    docker-compose up
+    # To stop the image
+    docker-compose stop
+    ```
+
+If the image is up:
+* The backend will be located in localhost:8000/graphql
+* The frontend will be located in localhost:3000
