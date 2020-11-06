@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTheme } from '@material-ui/core/styles';
-import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { LineChart, Brush, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 
 // Generate Sales Data
@@ -47,6 +47,44 @@ const data = [
   createData('00:35', -0.143),
   createData('00:36', -0.145),
   createData('00:37', -0.145),
+  createData('00:38', -0.145),
+  createData('00:39', -0.147),
+  createData('00:40', -0.146),
+  createData('00:41', -0.143),
+  createData('00:42', -0.147),
+  createData('00:43', -0.143),
+  createData('00:44', -0.145),
+  createData('00:45', -0.145),
+  createData('00:46', -0.165),
+  createData('00:47', -0.115),
+  createData('00:48', -0.175),
+  createData('00:49', -0.145),
+  createData('00:50', -0.147),
+  createData('00:51', -0.146),
+  createData('00:52', -0.143),
+  createData('00:53', -0.147),
+  createData('00:54', -0.143),
+  createData('00:55', -0.145),
+  createData('00:56', -0.145),
+  createData('00:57', -0.145),
+  createData('00:58', -0.147),
+  createData('00:59', -0.146),
+  createData('00:60', -0.143),
+  createData('00:61', -0.147),
+  createData('00:62', -0.143),
+  createData('00:63', -0.145),
+  createData('00:64', -0.145),
+  createData('00:65', -0.165),
+  createData('00:66', -0.115),
+  createData('00:67', -0.175),
+  createData('00:68', -0.145),
+  createData('00:69', -0.147),
+  createData('00:70', -0.146),
+  createData('00:71', -0.143),
+  createData('00:72', -0.147),
+  createData('00:73', -0.143),
+  createData('00:74', -0.145),
+  createData('00:75', -0.145),
 ];
 
 export default function Chart() {
@@ -76,6 +114,7 @@ export default function Chart() {
             </Label>
           </YAxis>
           <Line type="monotone" dataKey="amount" stroke={theme.palette.primary.main} dot={false} />
+          <Brush dataKey='time' height={15} stroke="#8884d8"/>
         </LineChart>
       </ResponsiveContainer>
     </React.Fragment>
