@@ -1,13 +1,18 @@
 import graphene
 from graphene_django import DjangoObjectType
+from arrhythmias.models import UserModel
 
-from arrhythmias.models import *
+
 class UserType(DjangoObjectType):
     class Meta:
         model = UserModel
+        fields = ("id", "name", "lastName", "userType")
+        interface = (relay.Node, )
+
 
 class Query(graphene.ObjectType):
-    users = graphene.List(UserType)
+    users = relay.Node.Field(UserModel)
+    all_users = DjangoFilterConnectionField(UserModel)
 
     def resolve_users(self, info):
         return UserModel.objects.all()
@@ -28,7 +33,7 @@ class CreateUser(graphene.Mutation):
         user.save()
 
         return CreateUser(
-            id=user.id,
+            id = user.id,
             name=user.name,
             last_name=user.last_name,
             user_type=user.user_type,
