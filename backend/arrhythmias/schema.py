@@ -1,21 +1,26 @@
-import graphene
+
 from graphene_django import DjangoObjectType
 from arrhythmias.models import UserModel
-
+import graphene
 
 class UserType(DjangoObjectType):
     class Meta:
         model = UserModel
-        fields = ("id", "name", "lastName", "userType")
-        interface = (relay.Node, )
+        fields = "__all__"
 
 
 class Query(graphene.ObjectType):
-    users = relay.Node.Field(UserModel)
-    all_users = DjangoFilterConnectionField(UserModel)
+    all_users = graphene.List(UserType)
+    user_by_name = graphene.Field(UserType, name=graphene.String(required=True))
 
-    def resolve_users(self, info):
+    def resolve_all_users(root, info):
         return UserModel.objects.all()
+
+    def resolve_user_by_name(root, info, name):
+        try:
+            return UserModel.objects.get(name=name)
+        except UserModel.DoesNotExist:
+            return None
 
 class CreateUser(graphene.Mutation):
     id = graphene.Int()
@@ -38,29 +43,6 @@ class CreateUser(graphene.Mutation):
             last_name=user.last_name,
             user_type=user.user_type,
         )
-
-class CarType(DjangoObjectType):
-    class Meta:
-        model = CarModel
-
-class CreateCar(graphene.Mutation):
-    id = graphene.Int()
-    year = graphene.String()
-
-
-    class Arguments:
-        year = graphene.String()
-
-
-    def mutate(self, info, year):
-        car = CarModel(year=year)
-        user.save()
-
-        return CreateCar(
-            id=car.id,
-            year=car.year
-        )
-
 
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
