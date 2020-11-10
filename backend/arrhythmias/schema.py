@@ -12,6 +12,7 @@ class UserType(DjangoObjectType):
 class Query(graphene.ObjectType):
     all_users = graphene.List(UserType)
     user_by_name = graphene.Field(UserType, name=graphene.String(required=True))
+    user_by_type = graphene.Field(UserType, user_type=graphene.String(required=True))
 
     def resolve_all_users(root, info):
         return UserModel.objects.all()
@@ -19,6 +20,12 @@ class Query(graphene.ObjectType):
     def resolve_user_by_name(root, info, name):
         try:
             return UserModel.objects.get(name=name)
+        except UserModel.DoesNotExist:
+            return None
+
+    def resolve_user_by_type(root, info, user_type):
+        try:
+            return UserModel.objects.get(user_type=user_type)
         except UserModel.DoesNotExist:
             return None
 
