@@ -66,3 +66,8 @@ if __name__ == "__main__":
         # Python script is forcefully closed, terminate all processes
         [p.terminate() for p in subprocesses]
         sys.exit()
+    except:
+        # An error popped up, terminate everything
+        [p.terminate() for p in subprocesses]
+        print("Error happened!")
+        sys.exit()
