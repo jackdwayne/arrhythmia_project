@@ -35,6 +35,7 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
         Other installs:
         >$ pip install django-cors-headers
         >$ pip install graphene-django
+        >$ pip install psycopg2
 
     ###### Clone repo:
         >$ git clone https://github.com/jackdwayne/arrhythmia_project.git
