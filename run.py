@@ -61,10 +61,12 @@ if __name__ == "__main__":
     except OSError:
         # An error popped up for one of the processes, terminate everything
         [p.terminate() for p in subprocesses]
+        print("OSError Error happened!")
         sys.exit()
     except KeyboardInterrupt:
         # Python script is forcefully closed, terminate all processes
         [p.terminate() for p in subprocesses]
+        print("KeyboardInterrupt Error happened!")
         sys.exit()
     except:
         # An error popped up, terminate everything

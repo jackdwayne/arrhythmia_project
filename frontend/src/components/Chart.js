@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '@material-ui/core/styles';
 import { LineChart, Brush, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
+
 
 // Generate Sales Data
 function createData(time, amount) {
   return { time, amount };
-};
+}
 
 const data = [
   createData('00:00', -0.145),
@@ -86,24 +87,22 @@ const data = [
   createData('00:75', -0.145),
 ];
 const heartbeats = ["00:09", "00:28", "00:47", "00:66"];
+const annotations = ['N', 'N', 'B', 'N'];
 
 function createAnnotations() {
 
   const items = [];
 
   for(let i = 0; i < heartbeats.length; i++) {
-    items.push(<ReferenceLine x={heartbeats[i]} stroke="green" label="N" />);
+    items.push(<ReferenceLine x={heartbeats[i]} stroke="green" label={annotations[i]} />);
   }
 
-  return (
+   return (
     <div>
       {items}
     </div>
     )
 }
-
-var min = data.reduce((prev, curr) => {return (prev.amount < curr.amount)? prev.amount : curr.amount});
-var max = data.reduce((prev, curr) => {return (prev.amount > curr.amount)? prev.amount : curr.amount});
 
 export default function Chart() {
   const theme = useTheme();
@@ -124,7 +123,6 @@ export default function Chart() {
           {createAnnotations().props.children}
           <XAxis dataKey="time" stroke={theme.palette.text.secondary} />
           <YAxis stroke={theme.palette.text.secondary}>
-          <YAxis type="number" domain={[min, max]} />
             <Label
               angle={270}
               position="left"
