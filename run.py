@@ -39,7 +39,7 @@ def run_frontend(current_dir, frontend_source):
     process = None
     if not os.path.isdir("node_modules"):
         process = sp.Popen(["npm", "install"])
-        process.wait
+        process.wait()
     process = sp.Popen(["npm", "start"], stdout=sp.PIPE)
     os.chdir(current_dir)
     return process
