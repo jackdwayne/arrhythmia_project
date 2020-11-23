@@ -124,12 +124,13 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
+# https://docs.djangoproject.com/en/3.1/howto/static-file94305545477s/
 
 STATIC_URL = '/static/'
 
 GRAPHENE = {
-    'SCHEMA' : 'mainapp.schema.schema'
+    'SCHEMA' : 'mainapp.schema.schema',
+    'RELAY_CONNECTION_MAX_LIMIT': 2000,
 }
 
 CORS_ORIGIN_WHITELIST = [

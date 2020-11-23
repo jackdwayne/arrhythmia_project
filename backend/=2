@@ -1,5 +1,0 @@
-Requirement already satisfied: django-filter in /home/jack/.local/lib/python3.8/site-packages (2.4.0)
-Requirement already satisfied: Django>=2.2 in /home/jack/.local/lib/python3.8/site-packages (from django-filter) (3.1.3)
-Requirement already satisfied: asgiref<4,>=3.2.10 in /home/jack/.local/lib/python3.8/site-packages (from Django>=2.2->django-filter) (3.3.0)
-Requirement already satisfied: sqlparse>=0.2.2 in /home/jack/.local/lib/python3.8/site-packages (from Django>=2.2->django-filter) (0.4.1)
-Requirement already satisfied: pytz in /usr/lib/python3/dist-packages (from Django>=2.2->django-filter) (2019.3)
