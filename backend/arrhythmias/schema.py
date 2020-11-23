@@ -2,32 +2,38 @@
 from graphene_django import DjangoObjectType
 from arrhythmias.models import UserModel
 import graphene
+from graphene import Node
+from graphene_django.filter import DjangoFilterConnectionField
+from graphene_django.types import DjangoObjectType
+from django_filters import FilterSet, OrderingFilter
 
 class UserType(DjangoObjectType):
     class Meta:
         model = UserModel
-        fields = "__all__"
+ 
+        filter_fields = {
+            'name':["exact", "icontains", "istartswith"], 
+            'last_name':["exact", "icontains", "istartswith"], 
+            'user_type':["exact", "icontains", "istartswith"]
+        }
+
+        interfaces =(Node, )
+
+class UserFilter(FilterSet):
+    model = UserModel
+
+    order_by = OrderingFilter(
+        fields=(
+            ('name', 'last_name'),
+        )
+    )
 
 
 class Query(graphene.ObjectType):
-    all_users = graphene.List(UserType)
-    user_by_name = graphene.Field(UserType, name=graphene.String(required=True))
-    user_by_type = graphene.Field(UserType, user_type=graphene.String(required=True))
+    user = Node.Field(UserType)
+    all_users = DjangoFilterConnectionField(UserType, filterset_class=UserFilter)
 
-    def resolve_all_users(root, info):
-        return UserModel.objects.all()
 
-    def resolve_user_by_name(root, info, name):
-        try:
-            return UserModel.objects.get(name=name)
-        except UserModel.DoesNotExist:
-            return None
-
-    def resolve_user_by_type(root, info, user_type):
-        try:
-            return UserModel.objects.get(user_type=user_type)
-        except UserModel.DoesNotExist:
-            return None
 
 class CreateUser(graphene.Mutation):
     id = graphene.Int()
