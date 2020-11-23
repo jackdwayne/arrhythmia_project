@@ -15,7 +15,6 @@ import Sample from './sample_charts';
 import MainList from './MainList';
 import PropTypes from 'prop-types';
 import PatientTable from "./Patient";
-import PatientList from "./PatientLists"
 
 
 function Copyright() {
@@ -134,149 +133,63 @@ class Dashboard extends React.Component {
     const { classes } = this.state.classes
     const listIndex = this.state.listIndex;
     // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight)
+    // Conditionally render center app depending on main list choice
+    let centerComponent = null;
     if (listIndex === 0) {
-      return (
-        <div className={classes.root}>
-          <CssBaseline />
-          <AppBar position="absolute" className={clsx(classes.appBar, this.state.open && classes.appBarShift)}>
-            <Toolbar className={classes.toolbar}>
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="open drawer"
-                onClick={this.handleDrawerOpen}
-                className={clsx(classes.menuButton, this.state.open && classes.menuButtonHidden)}
-              >
-                <MenuIcon />
-              </IconButton>
-              {/*title on top of dash*/}
-              <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-                Visualizing Arrhythmia: 420 Capstone Project
-            </Typography>
-              <IconButton color="inherit">
-              </IconButton>
-            </Toolbar>
-          </AppBar>
-          <Drawer
-            variant="permanent"
-            classes={{
-              paper: clsx(classes.drawerPaper, !this.state.open && classes.drawerPaperClose),
-            }}
-            open={this.state.open}
-          >
-            <div className={classes.toolbarIcon}>
-              <IconButton onClick={this.handleDrawerClose}>
-                <ChevronLeftIcon />
-              </IconButton>
-            </div>
-            <Divider />
-            {/* <List>{mainListItems}</List> */}
-            <MainList listIndex={this.handleListIndexUpdate}></MainList>
-            <Divider />
-          </Drawer>
-          <main className={classes.content}>
-            <div className={classes.appBarSpacer} />
-            <Sample />
-            <Copyright />
-          </main>
-
-        </div>
-      );
-    } else if (listIndex === 1){
-    return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <AppBar position="absolute" className={clsx(classes.appBar, this.state.open && classes.appBarShift)}>
-          <Toolbar className={classes.toolbar}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={this.handleDrawerOpen}
-              className={clsx(classes.menuButton, this.state.open && classes.menuButtonHidden)}
-            >
-              <MenuIcon />
-            </IconButton>
-            {/*title on top of dash*/}
-            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-              Visualizing Arrhythmia: 420 Capstone Project
-            </Typography>
-            <IconButton color="inherit">
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          variant="permanent"
-          classes={{
-            paper: clsx(classes.drawerPaper, !this.state.open && classes.drawerPaperClose),
-          }}
-          open={this.state.open}
-        >
-          <div className={classes.toolbarIcon}>
-            <IconButton onClick={this.handleDrawerClose}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </div>
-          <Divider />
-          {/* <List>{mainListItems}</List> */}
-          <MainList listIndex={this.handleListIndexUpdate}></MainList>
-          <Divider />
-        </Drawer>
-          <main className={classes.content}>
-            <div className={classes.appBarSpacer} />
-            <PatientList />
-            <Copyright />
-          </main>
-      </div>
-    );
-
-    } else {
-    return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <AppBar position="absolute" className={clsx(classes.appBar, this.state.open && classes.appBarShift)}>
-          <Toolbar className={classes.toolbar}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={this.handleDrawerOpen}
-              className={clsx(classes.menuButton, this.state.open && classes.menuButtonHidden)}
-            >
-              <MenuIcon />
-            </IconButton>
-            {/*title on top of dash*/}
-            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-              Visualizing Arrhythmia: 420 Capstone Project
-            </Typography>
-            <IconButton color="inherit">
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          variant="permanent"
-          classes={{
-            paper: clsx(classes.drawerPaper, !this.state.open && classes.drawerPaperClose),
-          }}
-          open={this.state.open}
-        >
-          <div className={classes.toolbarIcon}>
-            <IconButton onClick={this.handleDrawerClose}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </div>
-          <Divider />
-          {/* <List>{mainListItems}</List> */}
-          <MainList listIndex={this.handleListIndexUpdate}></MainList>
-          <Divider />
-        </Drawer>
-          <main className={classes.content}>
-            <div className={classes.appBarSpacer} />
-            <Copyright />
-          </main>
-      </div>
-    );
+      centerComponent = <Sample />
+    } else if (listIndex === 1) {
+      centerComponent = <PatientTable />
+    } else if (listIndex == 2) {
+      // Render adding patients
     }
+    return (
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar position="absolute" className={clsx(classes.appBar, this.state.open && classes.appBarShift)}>
+          <Toolbar className={classes.toolbar}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              onClick={this.handleDrawerOpen}
+              className={clsx(classes.menuButton, this.state.open && classes.menuButtonHidden)}
+            >
+              <MenuIcon />
+            </IconButton>
+            {/*title on top of dash*/}
+            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+              Visualizing Arrhythmia: 420 Capstone Project
+            </Typography>
+            <IconButton color="inherit">
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          variant="permanent"
+          classes={{
+            paper: clsx(classes.drawerPaper, !this.state.open && classes.drawerPaperClose),
+          }}
+          open={this.state.open}
+        >
+          <div className={classes.toolbarIcon}>
+            <IconButton onClick={this.handleDrawerClose}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </div>
+          <Divider />
+          {/* <List>{mainListItems}</List> */}
+          <MainList listIndex={this.handleListIndexUpdate}></MainList>
+          <Divider />
+        </Drawer>
+        <main className={classes.content}>
+          <div className={classes.appBarSpacer} />
+          {/* Render center app component depending on main list */}
+          {centerComponent}
+          <Copyright />
+        </main>
+
+      </div>
+    );
   }
 }
 
