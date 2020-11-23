@@ -1,42 +1,7 @@
 import React from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 
-const QUERY_USERS = gql`
-    query{
-        allUsers{
-            edges{
-                node{
-                id
-                name
-                lastName
-                userType
-                }
-            }
-        }
-    }
-`; export function UserInfo() {
-    // Polling: provides near-real-time synchronization with
-    // your server by causing a query to execute periodically
-    // at a specified interval
-    const { data, loading } = useQuery(
-        QUERY_USERS, {}
-    );
 
-    // should handle loading status
-    if (loading) return <p>Loading...</p>;
-
-
-    console.log(data.allUsers.edges);
-
-
-    return data.allUsers.edges.map((item) => (
-        <div key={item.node.id}>
-            <p>
-                User - {item.node.id}: {item.node.name} {item.node.lastName} {item.node.userType}
-            </p>
-        </div>
-    ));
-}
 
 const CREATE_USER = gql`
   mutation  createUser ($name: String!, $lastName: String!, $userType: String!){

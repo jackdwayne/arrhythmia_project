@@ -8,7 +8,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Chart from './Chart';
 import PatientTable from './Patient';
-import {UserInfo, CreateUser} from './Users';
+import {CreateUser} from './Users';
 import Title from './Title';
 
 const drawerWidth = 240;
@@ -78,7 +78,7 @@ export default function Sample() {
           <PatientTable>
           </PatientTable>
           <CreateUser/>
-          <UserInfo/>
+
           <Box pt={4}>
             
           </Box>
