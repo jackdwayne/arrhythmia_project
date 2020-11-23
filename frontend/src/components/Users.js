@@ -2,14 +2,18 @@ import React from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 
 const QUERY_USERS = gql`
-  query {
-    users {
-      id
-      name
-      lastName
-      userType
+    query{
+        allUsers{
+            edges{
+                node{
+                id
+                name
+                lastName
+                userType
+                }
+            }
+        }
     }
-}
 `; export function UserInfo() {
     // Polling: provides near-real-time synchronization with
     // your server by causing a query to execute periodically
@@ -22,10 +26,13 @@ const QUERY_USERS = gql`
     if (loading) return <p>Loading...</p>;
 
 
-    return data.users.map(({ id, name, lastName, userType }) => (
-        <div key={id}>
+    console.log(data.allUsers.edges);
+
+
+    return data.allUsers.edges.map((item) => (
+        <div key={item.node.id}>
             <p>
-                User - {id}: {name} {lastName} {userType}
+                User - {item.node.id}: {item.node.name} {item.node.lastName} {item.node.userType}
             </p>
         </div>
     ));

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '@material-ui/core/styles';
-import { LineChart, Brush, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { LineChart, Brush, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
 
 
 // Generate Sales Data
@@ -86,6 +86,23 @@ const data = [
   createData('00:74', -0.145),
   createData('00:75', -0.145),
 ];
+const heartbeats = ["00:09", "00:28", "00:47", "00:66"];
+const annotations = ['N', 'N', 'B', 'N'];
+
+function createAnnotations() {
+
+  const items = [];
+
+  for(let i = 0; i < heartbeats.length; i++) {
+    items.push(<ReferenceLine x={heartbeats[i]} stroke="green" label={annotations[i]} />);
+  }
+
+   return (
+    <div>
+      {items}
+    </div>
+    )
+}
 
 export default function Chart() {
   const theme = useTheme();
@@ -103,6 +120,7 @@ export default function Chart() {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
+          {createAnnotations().props.children}
           <XAxis dataKey="time" stroke={theme.palette.text.secondary} />
           <YAxis stroke={theme.palette.text.secondary}>
             <Label

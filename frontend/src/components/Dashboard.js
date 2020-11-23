@@ -1,26 +1,21 @@
-import React from 'react';
+import React from "react";
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
-import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { mainListItems } from './listItems';
-import Chart from './Chart';
-import PatientTable from './Patient';
-import {UserInfo, CreateUser} from './Users';
-import Title from './Title';
+import Sample from './sample_charts';
+import MainList from './MainList';
+import PropTypes from 'prop-types';
+import PatientTable from "./Patient";
+
 
 function Copyright() {
   return (
@@ -37,7 +32,7 @@ function Copyright() {
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = theme => ({
   root: {
     display: 'flex',
   },
@@ -114,83 +109,91 @@ const useStyles = makeStyles((theme) => ({
   fixedHeight: {
     height: 240,
   },
-}));
+});
 
-export default function Dashboard() {
-  const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
-  const handleDrawerOpen = () => {
-    setOpen(true);
+class Dashboard extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { open: true, classes: this.props, listIndex: 0 }
+    this.handleDrawerClose = this.handleDrawerClose.bind(this)
+    this.handleDrawerOpen = this.handleDrawerOpen.bind(this)
+    this.handleListIndexUpdate = this.handleListIndexUpdate.bind(this)
+  }
+  handleDrawerOpen = () => {
+    this.setState({ open: true })
   };
-  const handleDrawerClose = () => {
-    setOpen(false);
+  handleDrawerClose = () => {
+    this.setState({ open: false })
   };
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  handleListIndexUpdate = (index) => {
+    this.setState({ listIndex: index })
+  }
 
-  return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
-        <Toolbar className={classes.toolbar}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
-          >
-            <MenuIcon />
-          </IconButton>
-          {/*title on top of dash*/}
-          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Visualizing Arrhythmia: 420 Capstone Project
-          </Typography>
-          <IconButton color="inherit">
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        variant="permanent"
-        classes={{
-          paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-        }}
-        open={open}
-      >
-        <div className={classes.toolbarIcon}>
-          <IconButton onClick={handleDrawerClose}>
-            <ChevronLeftIcon />
-          </IconButton>
-        </div>
-        <Divider />
-        <List>{mainListItems}</List>
-        <Divider />
-      </Drawer>
-      <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
-          <Grid container spacing={3}>
-            {/* Chart */}
-            <Grid item xs={12} md={10} lg={12}>
-              <Paper className={fixedHeightPaper}>
-                <Title>ML II</Title>
-                <Chart />
-              </Paper>
-              <Divider />
-              <Paper className={fixedHeightPaper}>
-                <Title>V1</Title>
-                <Chart />
-              </Paper>
-            </Grid>
-          </Grid>
-          <PatientTable>
-          </PatientTable>
-          <CreateUser/>
-          <UserInfo/>
-          <Box pt={4}>
-            <Copyright />
-          </Box>
-        </Container>
-      </main>
-    </div>
-  );
+  render() {
+    const { classes } = this.state.classes
+    const listIndex = this.state.listIndex;
+    // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight)
+    // Conditionally render center app depending on main list choice
+    let centerComponent = null;
+    if (listIndex === 0) {
+      centerComponent = <Sample />
+    } else if (listIndex === 1) {
+      centerComponent = <PatientTable />
+    } else if (listIndex == 2) {
+      // Render adding patients
+    }
+    return (
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar position="absolute" className={clsx(classes.appBar, this.state.open && classes.appBarShift)}>
+          <Toolbar className={classes.toolbar}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              onClick={this.handleDrawerOpen}
+              className={clsx(classes.menuButton, this.state.open && classes.menuButtonHidden)}
+            >
+              <MenuIcon />
+            </IconButton>
+            {/*title on top of dash*/}
+            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+              Visualizing Arrhythmia: 420 Capstone Project
+            </Typography>
+            <IconButton color="inherit">
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          variant="permanent"
+          classes={{
+            paper: clsx(classes.drawerPaper, !this.state.open && classes.drawerPaperClose),
+          }}
+          open={this.state.open}
+        >
+          <div className={classes.toolbarIcon}>
+            <IconButton onClick={this.handleDrawerClose}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </div>
+          <Divider />
+          {/* <List>{mainListItems}</List> */}
+          <MainList listIndex={this.handleListIndexUpdate}></MainList>
+          <Divider />
+        </Drawer>
+        <main className={classes.content}>
+          <div className={classes.appBarSpacer} />
+          {/* Render center app component depending on main list */}
+          {centerComponent}
+          <Copyright />
+        </main>
+
+      </div>
+    );
+  }
 }
+
+Dashboard.propTypes = {
+  classes: PropTypes.object.isRequired,
+}
+export default withStyles(useStyles)(Dashboard)
