@@ -33,8 +33,12 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
         >$ sudo apt install python3-django
 
         Other installs:
-        >$ pip install django-cors-headers
-        >$ pip install graphene-django
+        >$ pip3 install django-cors-headers
+        >$ pip3 install graphene-django
+        >$ pip3 install graphene-django
+        >$ pip3 install psycopg2-binary
+        >$ pip3 install django-filter
+
 
     ###### Clone repo:
         >$ git clone https://github.com/jackdwayne/arrhythmia_project.git
