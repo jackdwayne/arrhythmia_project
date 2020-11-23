@@ -14,6 +14,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Sample from './sample_charts';
 import MainList from './MainList';
 import PropTypes from 'prop-types';
+import PatientTable from "./Patient";
 
 
 function Copyright() {
@@ -113,9 +114,10 @@ const useStyles = theme => ({
 class Dashboard extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { open: true, classes: this.props}
+    this.state = { open: true, classes: this.props, listIndex: 0 }
     this.handleDrawerClose = this.handleDrawerClose.bind(this)
     this.handleDrawerOpen = this.handleDrawerOpen.bind(this)
+    this.handleListIndexUpdate = this.handleListIndexUpdate.bind(this)
   }
   handleDrawerOpen = () => {
     this.setState({ open: true })
@@ -123,10 +125,23 @@ class Dashboard extends React.Component {
   handleDrawerClose = () => {
     this.setState({ open: false })
   };
+  handleListIndexUpdate = (index) => {
+    this.setState({ listIndex: index })
+  }
 
   render() {
-    const {classes} = this.state.classes
+    const { classes } = this.state.classes
+    const listIndex = this.state.listIndex;
     // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight)
+    // Conditionally render center app depending on main list choice
+    let centerComponent = null;
+    if (listIndex === 0) {
+      centerComponent = <Sample />
+    } else if (listIndex === 1) {
+      centerComponent = <PatientTable />
+    } else if (listIndex == 2) {
+      // Render adding patients
+    }
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -163,19 +178,19 @@ class Dashboard extends React.Component {
           </div>
           <Divider />
           {/* <List>{mainListItems}</List> */}
-          <MainList></MainList>
+          <MainList listIndex={this.handleListIndexUpdate}></MainList>
           <Divider />
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          <Sample />
+          {/* Render center app component depending on main list */}
+          {centerComponent}
           <Copyright />
         </main>
 
       </div>
     );
   }
-
 }
 
 Dashboard.propTypes = {
