@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -11,10 +11,12 @@ import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import Sample from './sample_charts';
+import Display from './DefaultDisplay';
 import MainList from './MainList';
 import PropTypes from 'prop-types';
-import PatientTable from "./Patient";
+import PatientTable from './Patient';
+import AllPatients from './AllPatients';
+import {CreateUser} from './Users';
 
 
 function Copyright() {
@@ -136,11 +138,11 @@ class Dashboard extends React.Component {
     // Conditionally render center app depending on main list choice
     let centerComponent = null;
     if (listIndex === 0) {
-      centerComponent = <Sample />
+      centerComponent = <Display />
     } else if (listIndex === 1) {
-      centerComponent = <PatientTable />
+      centerComponent = <AllPatients />
     } else if (listIndex == 2) {
-      // Render adding patients
+      centerComponent = <CreateUser />
     }
     return (
       <div className={classes.root}>
