@@ -1,3 +1,12 @@
-Django==2.2.12
-django-cors-headers==3.5.0
-graphene-django==2.13.0
+django
+djangorestframework
+graphene-django
+django-graqhiql
+django-filter
+django-rest-auth
+django-cors-headers
+psycopg2-binary
+pandas
+scikit-learn
+joblib
+gunicorn
