@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
@@ -31,14 +31,14 @@ const patient_query = gql`
 }}
 `;
 
+let beats = [0.214, 1.028, 1.844, 2.631, 3.419, 4.206, 5.025];
+  let annotations = ['N', 'N', 'N', 'N', 'N', 'N', 'N'];
 // Generate pairs of timestamps and readings
 function createData(time, amount) {
   return { time, amount };
 }
 
 const drawerWidth = 240;
-const beats = ["00:09", "00:28", "00:47", "00:66"];
-const annotations = ['N', 'N', 'B', 'N'];
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -81,10 +81,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function updateGraph(data) {
+  let signals = data.allSignals.edges;
+  let MLIIdatapoints = [];
+  let V5datapoints = [];
+  let i = 0;
+
+  for(i; i < 2000; i++){
+    MLIIdatapoints.push(createData(signals[i].node.time, signals[i].node.mlii));
+    V5datapoints.push(createData(signals[i].node.time, signals[i].node.v5));
+  }
+  return {ml2: MLIIdatapoints, v5: V5datapoints}
+}
+
 export default function Sample() {
 	const classes = useStyles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   const { loading, error, data } = useQuery(patient_query);
+  const [dataset, setDataset] = useState(0)
 
   if (loading) return 'Loading...';
   if (error) return `Error! ${error.message}`;
