@@ -1,10 +1,10 @@
 FROM node:14
 
 # Create app directory
-WORKDIR /app/frontend
+WORKDIR /app/frontend/
 
 # Install app dependencies
-COPY package*.json /app/frontend
+COPY package*.json /app/frontend/
 RUN npm install
 
 # Uncomment to build code for  production

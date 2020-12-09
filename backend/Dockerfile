@@ -7,11 +7,11 @@ RUN apt-get update \
         && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
-WORKDIR /app/backend
+WORKDIR /app/backend/
 
 # Copy requirements stored in text file, then install it into the
 # container
-COPY requirements.txt /app/backend
+COPY requirements.txt /app/backend/
 RUN pip3 install -r requirements.txt
 
 # Copy all installed files into app directory
