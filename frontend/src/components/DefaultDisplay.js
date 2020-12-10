@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
@@ -8,11 +8,37 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Chart from './Chart';
 import PatientTable from './Patient';
-import {CreateUser} from './Users';
 import Title from './Title';
+import { gql, useQuery } from '@apollo/client';
+
+
+const patient_query = gql`
+  {allSignals(signalRecordName_RecordName:100, time: "0,30"){
+  pageInfo{
+    startCursor
+    endCursor
+    hasNextPage
+    hasPreviousPage
+  }
+  edges{
+    node{
+      id
+      time
+      mlii
+      v5
+    }
+  }
+}}
+`;
+
+let beats = [0.214, 1.028, 1.844, 2.631, 3.419, 4.206, 5.025];
+  let annotations = ['N', 'N', 'N', 'N', 'N', 'N', 'N'];
+// Generate pairs of timestamps and readings
+function createData(time, amount) {
+  return { time, amount };
+}
 
 const drawerWidth = 240;
-
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -55,9 +81,38 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function updateGraph(data) {
+  let signals = data.allSignals.edges;
+  let MLIIdatapoints = [];
+  let V5datapoints = [];
+  let i = 0;
+
+  for(i; i < 2000; i++){
+    MLIIdatapoints.push(createData(signals[i].node.time, signals[i].node.mlii));
+    V5datapoints.push(createData(signals[i].node.time, signals[i].node.v5));
+  }
+  return {ml2: MLIIdatapoints, v5: V5datapoints}
+}
+
 export default function Sample() {
 	const classes = useStyles();
-	const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  const { loading, error, data } = useQuery(patient_query);
+  const [dataset, setDataset] = useState(0)
+
+  if (loading) return 'Loading...';
+  if (error) return `Error! ${error.message}`;
+  let signals = data.allSignals.edges;
+
+  let MLIIdatapoints = [];
+  let V5datapoints = [];
+  let i = 0;
+
+  for(i; i < 2000; i++){
+    MLIIdatapoints.push(createData(signals[i].node.time, signals[i].node.mlii));
+    V5datapoints.push(createData(signals[i].node.time, signals[i].node.v5));
+  }
+  
 
 	return (
 		<Container maxWidth="lg" className={classes.container}>
@@ -66,18 +121,17 @@ export default function Sample() {
             <Grid item xs={12} md={10} lg={12}>
               <Paper className={fixedHeightPaper}>
                 <Title>ML II</Title>
-                <Chart />
+                <Chart key={1} data={MLIIdatapoints} beats={beats} annotations={annotations}/>
               </Paper>
               <Divider />
               <Paper className={fixedHeightPaper}>
                 <Title>V1</Title>
-                <Chart />
+                <Chart key={2} data={V5datapoints} beats={beats} annotations={annotations}/>
               </Paper>
             </Grid>
           </Grid>
           <PatientTable>
           </PatientTable>
-          <CreateUser/>
 
           <Box pt={4}>
             
