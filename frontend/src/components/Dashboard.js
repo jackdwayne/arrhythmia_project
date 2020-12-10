@@ -141,7 +141,7 @@ class Dashboard extends React.Component {
       centerComponent = <Display />
     } else if (listIndex === 1) {
       centerComponent = <AllPatients />
-    } else if (listIndex == 2) {
+    } else if (listIndex === 2) {
       centerComponent = <CreateUser />
     }
     return (
