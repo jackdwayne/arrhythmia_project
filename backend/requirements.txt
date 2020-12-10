@@ -9,3 +9,4 @@ pandas
 scikit-learn
 joblib
 gunicorn
+django-debug-toolbar
