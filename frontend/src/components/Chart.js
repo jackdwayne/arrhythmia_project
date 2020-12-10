@@ -15,9 +15,6 @@ function createAnnotations(beats, annotations) {
 }
 
 export default class Chart extends Component{
-  constructor(props){
-    super(props)
-  }
 
   render(){
     
