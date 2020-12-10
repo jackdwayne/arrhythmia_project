@@ -8,6 +8,9 @@ For CS side, the requirements are: 1)Develop a data analysis software which a.vi
 The team can work on the MIT open source dataset (https://physionet.org/content/mitdb/1.0.0/) to getstarted, before our data becomes available from Rowan collaborators. 
 
 ## Setup:
+    Install backend:
+        cd to /backend/django_app
+        pip install requirements.txt
     ###### Install Python:
         Windows:
         > https://www.python.org/downloads/
