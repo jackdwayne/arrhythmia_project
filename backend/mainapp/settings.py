@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'graphene_django',
-    'patientdb'
+    'patientdb',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'mainapp.urls'
@@ -83,8 +85,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'projectdb',
         'USER': 'postgres',
-        'PASSWORD': 'jackjones',
-        'HOST': 'database-1.c7f0jvnuk17j.us-east-1.rds.amazonaws.com',
+        'PASSWORD': 'password',
+        'HOST': 'project.co9crwajijjy.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
      }
 }
@@ -131,6 +133,9 @@ STATIC_URL = '/static/'
 GRAPHENE = {
     'SCHEMA' : 'mainapp.schema.schema',
     'RELAY_CONNECTION_MAX_LIMIT': 2000,
+    'MIDDLEWARE': [
+        'graphene_django.debug.DjangoDebugMiddleware'
+    ],
 }
 
 CORS_ORIGIN_WHITELIST = [
@@ -138,3 +143,23 @@ CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:3000"
     # your React App domain]
 ]
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
+DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.headers.HeadersPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        'debug_toolbar.panels.signals.SignalsPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+    ]
+

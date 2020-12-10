@@ -1,14 +1,20 @@
 import graphene
 from graphene_django import DjangoObjectType
 import django_filters
-from .models import *
+from .models import Signals, Patient
 from graphene_django.filter import DjangoFilterConnectionField
+import graphene_django_optimizer as gql_optimizer
+
 
 
 def custom_range_filter_method(queryset, field_name, value):
     if value:
         queryset = queryset.filter(**{f'{field_name}__range': value.split(',')})
     return queryset
+
+class SignalType(DjangoObjectType):
+    class Meta:
+        model = Signals
 
 
 class SignalFilter(django_filters.FilterSet):
@@ -48,6 +54,12 @@ class Query(object):
     patient = graphene.Node.Field(PatientNode)
     all_patients = DjangoFilterConnectionField(PatientNode)      
     signal = graphene.Node.Field(SignalNode)
-    all_signals= DjangoFilterConnectionField(SignalNode)    
+    all_signals= DjangoFilterConnectionField(SignalNode)
+    all_sigs = graphene.List(SignalType)
+
+    def resolve_all_sigs(root,info):
+        return gql_optimizer.query(Signals.objects.all(), info)
+    
+        
 
     

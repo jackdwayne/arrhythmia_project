@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useTheme } from '@material-ui/core/styles';
+import React, { Component} from 'react';
+
 import { LineChart, Brush, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
 
 
@@ -104,37 +104,48 @@ function createAnnotations() {
     )
 }
 
-export default function Chart() {
-  const theme = useTheme();
+export default class Chart extends Component{
+  constructor(props){
+    super(props)
+    this.state = {
 
-  return (
-    <React.Fragment>
-      <ResponsiveContainer>
-        <LineChart
-          data={data}
-          margin={{
-            top: 16,
-            right: 16,
-            bottom: 0,
-            left: 24,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          {createAnnotations().props.children}
-          <XAxis dataKey="time" stroke={theme.palette.text.secondary} />
-          <YAxis stroke={theme.palette.text.secondary}>
-            <Label
-              angle={270}
-              position="left"
-              style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}
-            >
-              milliVolt (mV)
-            </Label>
-          </YAxis>
-          <Line type="monotone" dataKey="amount" stroke={theme.palette.primary.main} dot={false} />
-          <Brush dataKey='time' height={15} stroke="#8884d8"/>
-        </LineChart>
-      </ResponsiveContainer>
-    </React.Fragment>
-  );
+    }
+  }
+
+  render(){
+    
+    return (
+      <React.Fragment>
+        <ResponsiveContainer>
+          <LineChart
+            data={data}
+            margin={{
+              top: 16,
+              right: 16,
+              bottom: 0,
+              left: 24,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            {createAnnotations().props.children}
+            <XAxis dataKey="time" stroke={"blue"} />
+            <YAxis stroke={"green"}>
+              <Label
+                angle={270}
+                position="left"
+                style={{ textAnchor: 'middle', fill: "blue" }}
+              >
+                milliVolt (mV)
+              </Label>
+            </YAxis>
+            <Line type="monotone" dataKey="amount" stroke={"green"} dot={false} />
+            <Brush dataKey='time' height={15} stroke="#8884d8"/>
+          </LineChart>
+        </ResponsiveContainer>
+      </React.Fragment>
+    );
+  }
 }
+  
+
+  
