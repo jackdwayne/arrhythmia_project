@@ -10,3 +10,4 @@ scikit-learn
 joblib
 gunicorn
 django-debug-toolbar
+graphene-django-optimizer
