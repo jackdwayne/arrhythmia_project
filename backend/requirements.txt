@@ -1,7 +1,6 @@
 django
 djangorestframework
 graphene-django
-django-graqhiql
 django-filter
 django-rest-auth
 django-cors-headers
