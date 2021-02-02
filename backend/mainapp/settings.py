@@ -83,10 +83,10 @@ WSGI_APPLICATION = 'mainapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'projectdb',
+        'NAME': 'patient_db',
         'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'project.co9crwajijjy.us-east-1.rds.amazonaws.com',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
         'PORT': '5432',
      }
 }
@@ -132,7 +132,7 @@ STATIC_URL = '/static/'
 
 GRAPHENE = {
     'SCHEMA' : 'mainapp.schema.schema',
-    'RELAY_CONNECTION_MAX_LIMIT': 2000,
+    'RELAY_CONNECTION_MAX_LIMIT': 650000,
     'MIDDLEWARE': [
         'graphene_django.debug.DjangoDebugMiddleware'
     ],
