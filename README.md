@@ -8,6 +8,12 @@ For CS side, the requirements are: 1)Develop a data analysis software which a.vi
 The team can work on the MIT open source dataset (https://physionet.org/content/mitdb/1.0.0/) to getstarted, before our data becomes available from Rowan collaborators. 
 
 ## Setup:
+    ##### Virtual environment setup:
+    sudo apt-get install python3-venv
+    python3 -m venv mypthonenv
+    source mypythonenv/bin/activate
+    pip3 install django djangorestframework django-filter django-rest-auth django-cors-headers psycopg2-binary pandas scikit-learn joblib gunicorn django-debug-toolbar
+
     Install backend:
         cd to /backend/django_app
         pip install requirements.txt
