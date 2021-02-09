@@ -108,3 +108,6 @@ __pycache__/
 
 # Ignore vscode configs
 .vscode/
+
+# Ignore python environment
+/mypythonenv
