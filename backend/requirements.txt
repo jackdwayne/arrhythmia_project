@@ -1,13 +1,1 @@
-django
-djangorestframework
-graphene-django
-django-filter
-django-rest-auth
-django-cors-headers
-psycopg2-binary
-pandas
-scikit-learn
-joblib
-gunicorn
-django-debug-toolbar
-graphene-django-optimizer
+django djangorestframework django-filter django-rest-auth django-cors-headers psycopg2-binary pandas scikit-learn joblib gunicorn django-debug-toolbar
