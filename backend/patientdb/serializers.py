@@ -11,7 +11,9 @@ class PatientSerializer(serializers.ModelSerializer):
                   "checksum", "block_size")
 
 class SignalsSerializer(serializers.ModelSerializer):
+    
 
     class Meta:
         model = Signals
         fields =('signal_record_name', 'time', 'mlii', 'v5')
+    

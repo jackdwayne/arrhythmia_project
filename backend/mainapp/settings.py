@@ -129,12 +129,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-GRAPHENE = {
-    'SCHEMA' : 'mainapp.schema.schema',
-    'RELAY_CONNECTION_MAX_LIMIT': 650000,
-    'MIDDLEWARE': [
-        'graphene_django.debug.DjangoDebugMiddleware'
-    ],
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 11500
 }
 
 CORS_ORIGIN_WHITELIST = [
