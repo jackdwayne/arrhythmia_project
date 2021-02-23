@@ -106,4 +106,8 @@ dist
 # pycache
 __pycache__/
 
+# Ignore vscode configs
+.vscode/
+
+# Ignore python environment
 /mypythonenv
