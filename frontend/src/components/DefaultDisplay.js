@@ -10,8 +10,13 @@ import Chart from './Chart';
 import PatientTable from './Patient';
 import Title from './Title';
 import { gql, useQuery } from '@apollo/client';
+import {client} from '../graphql-logic/endpoint'
+import {patientData} from '../graphql-logic/queries'
 
-
+// Test fetch
+client.query({query: patientData}).then(response => {
+    console.log(response.data)
+})
 const patient_query = gql`
   {allSignals(signalRecordName_RecordName:100, time: "0,30"){
   pageInfo{

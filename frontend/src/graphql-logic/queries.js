@@ -1,19 +1,18 @@
+import { gql } from "@apollo/client";
 /* For GraphQL */
-export const patientData = `query($patient: Int, $cursor: String){
-  allSignals(signalRecordName_RecordName: $patient, time: "0,30", after:$cursor) {
-    pageInfo {
-      startCursor
-      endCursor
-      hasNextPage
-      hasPreviousPage
-    }
-    edges {
-      node {
-        id
-        time
-        mlii
-        v5
-      }
+// Note: When specifying path, the path is concatenated with the rest link.
+//       It is sensitive to characters such as '/'
+export const patientData = gql`
+  query getPatient {
+    patient
+      @rest(
+        type: "Patient"
+        path: "signals/?format=json&signal_record_name=4&timeRange=0,30"
+      ) {
+      count
+      next
+      previous
+      results
     }
   }
-}`;
+`;
