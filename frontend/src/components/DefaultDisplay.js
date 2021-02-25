@@ -83,16 +83,7 @@ export default function Sample() {
 
   if (loading) return "Loading...";
   if (error) return `Error! ${error.message}`;
-  let signals = data.patient.results;
-
-  let MLIIdatapoints = [];
-  let V5datapoints = [];
-  let i = 0;
-
-  for (i; i < 2000; i++) {
-    MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
-    V5datapoints.push(createData(signals[i].time, signals[i].v5));
-  }
+  let signals = updateGraph(data) 
 
   return (
     <Container maxWidth="lg" className={classes.container}>
@@ -103,7 +94,7 @@ export default function Sample() {
             <Title>ML II</Title>
             <Chart
               key={1}
-              data={MLIIdatapoints}
+              data={signals.ml2}
               beats={beats}
               annotations={annotations}
             />
@@ -113,7 +104,7 @@ export default function Sample() {
             <Title>V1</Title>
             <Chart
               key={2}
-              data={V5datapoints}
+              data={signals.v5}
               beats={beats}
               annotations={annotations}
             />
