@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Patient(models.Model):
-    record_name = models.IntegerField()
+    record_name = models.IntegerField(primary_key=True)
     n_sig = models.CharField(max_length=100, blank=True)
     fs = models.CharField(max_length=100, blank=True)
     counter_freq = models.CharField(max_length=100, blank=True)
@@ -34,9 +34,11 @@ class Patient(models.Model):
         return self.record_name
 
 class Signals(models.Model):
-    signal_record_name = models.ForeignKey(Patient, related_name='signal_record_name', on_delete=models.CASCADE)
+    record_name = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    lead_name = models.CharField(max_length=100)
     time = models.FloatField()
-    mlii = models.FloatField()
-    v5 = models.FloatField()
+    value = models.FloatField()
+    annotation = models.CharField(max_length=1,blank=True)
+    model_annotation = models.CharField(max_length=1,blank=True)
     def __int__(self):
-        return self.signal_record_name
+        return self.record_name
