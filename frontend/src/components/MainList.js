@@ -11,11 +11,11 @@ export default class MainList extends React.Component {
   constructor(props) {
     super(props);
     this.state = { selectedIndex: 0 };
-    this.handleListItemClick = this.handleListItemClick.bind(this)
+    this.handleListItemClick = this.handleListItemClick.bind(this);
   }
 
   handleListItemClick(index) {
-    this.props.listIndex(index)
+    this.props.listIndex(index);
     this.setState({ selectedIndex: index });
   }
 
@@ -27,7 +27,9 @@ export default class MainList extends React.Component {
         <ListItem
           button
           selected={selectedIndex === 0}
-          onClick={() => { this.handleListItemClick(0) }}
+          onClick={() => {
+            this.handleListItemClick(0);
+          }}
         >
           <ListItemIcon>
             <DashboardIcon />
@@ -37,7 +39,9 @@ export default class MainList extends React.Component {
         <ListItem
           button
           selected={selectedIndex === 1}
-          onClick={() => { this.handleListItemClick(1) }}
+          onClick={() => {
+            this.handleListItemClick(1);
+          }}
         >
           <ListItemIcon>
             <PeopleIcon />
@@ -47,7 +51,9 @@ export default class MainList extends React.Component {
         <ListItem
           button
           selected={selectedIndex === 2}
-          onClick={() => { this.handleListItemClick(2) }}
+          onClick={() => {
+            this.handleListItemClick(2);
+          }}
         >
           <ListItemIcon>
             <BarChartIcon />
