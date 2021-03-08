@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'patientdb.apps.PatientdbConfig',
     'debug_toolbar',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
