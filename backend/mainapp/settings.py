@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -38,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'patientdb.apps.PatientdbConfig',
+    'patientdb',
     'debug_toolbar',
 ]
 
@@ -82,7 +83,7 @@ WSGI_APPLICATION = 'mainapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'patientdb',
+        'NAME': 'patient_db',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': 'localhost',
@@ -134,6 +135,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 21600
 }
 
+
+
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
     "http://127.0.0.1:3000"
@@ -159,3 +162,11 @@ DEBUG_TOOLBAR_PANELS = [
         'debug_toolbar.panels.redirects.RedirectsPanel',
     ]
 
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+
+STATIC_URL = '/static/'
+
+
+ROOT_URLCONF = 'mainapp.urls'
