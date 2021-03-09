@@ -1,23 +1,29 @@
-import React, { Component} from 'react';
+import React, { Component } from "react";
 
-import { LineChart, Brush, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
+import {
+  LineChart,
+  Brush,
+  Line,
+  XAxis,
+  YAxis,
+  Label,
+  ResponsiveContainer,
+  CartesianGrid,
+  ReferenceLine,
+} from "recharts";
 
 function createAnnotations(beats, annotations) {
   const items = [];
-  for(let i = 0; i < beats.length; i++) {
-    items.push(<ReferenceLine x={beats[i]} stroke="green" label={annotations[i]} />);
+  for (let i = 0; i < beats.length; i++) {
+    items.push(
+      <ReferenceLine x={beats[i]} stroke="green" label={annotations[i]} />
+    );
   }
-   return (
-    <div>
-      {items}
-    </div>
-    )
+  return <div>{items}</div>;
 }
 
-export default class Chart extends Component{
-
-  render(){
-    
+export default class Chart extends Component {
+  render() {
     return (
       <React.Fragment>
         <ResponsiveContainer>
@@ -31,25 +37,30 @@ export default class Chart extends Component{
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            {createAnnotations(this.props.beats, this.props.annotations).props.children}
+            {
+              createAnnotations(this.props.beats, this.props.annotations).props
+                .children
+            }
             <XAxis dataKey="time" stroke={"blue"} />
             <YAxis stroke={"green"}>
               <Label
                 angle={270}
                 position="left"
-                style={{ textAnchor: 'middle', fill: "blue" }}
+                style={{ textAnchor: "middle", fill: "blue" }}
               >
                 milliVolt (mV)
               </Label>
             </YAxis>
-            <Line type="monotone" dataKey="amount" stroke={"green"} dot={false} />
-            <Brush dataKey='time' height={15} stroke="#8884d8"/>
+            <Line
+              type="monotone"
+              dataKey="amount"
+              stroke={"green"}
+              dot={false}
+            />
+            <Brush dataKey="time" height={15} stroke="#8884d8" />
           </LineChart>
         </ResponsiveContainer>
       </React.Fragment>
     );
   }
 }
-  
-
-  
