@@ -1,0 +1,3 @@
+# Ignore all LSTM_Classification files except the zip
+LSTM_Classification
+!LSTM_Classification.zip
