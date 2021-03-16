@@ -6,7 +6,7 @@ router = DefaultRouter()
 router.register(r'signals', views.SignalsViewSet)
 router.register(r'patients', views.PatientViewSet)
 
-# Currently testing integrating ML into app
+# Currently testing integrating ML into app, might be used in actual implementation
 from django.urls import path
 urlpatterns = [
     path('test/', views.test_model.as_view(), name='test')
