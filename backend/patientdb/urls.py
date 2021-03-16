@@ -6,4 +6,11 @@ router = DefaultRouter()
 router.register(r'signals', views.SignalsViewSet)
 router.register(r'patients', views.PatientViewSet)
 
-urlpatterns = router.urls
+# Currently testing integrating ML into app
+from django.urls import path
+urlpatterns = [
+    path('test/', views.test_model.as_view(), name='test')
+]
+
+# Combine router urls with other url patterns
+urlpatterns += router.urls
