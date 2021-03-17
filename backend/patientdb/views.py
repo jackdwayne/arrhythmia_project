@@ -87,23 +87,14 @@ class test_model(APIView):
             # This is where the model seems to be loaded, might be able to initialized when the app is initialized
             model = tf.keras.models.load_model(local_dir+ "/LSTM_RW_Classification_"+str(WINDOW_SIZE)+"_e"+str(EPOCHS)+".h5")
 
-            r = 100
+            # get data from database
+            data = Signals.objects.filter(signal_record_name=100).order_by("time").values("mlii")
+            data =  [[time["mlii"]] for time in data]
 
-            # Unnecessary, since it can be hardcoded later , since it
-            # requires location of file, which requires someone working on this 
-            # to know the project structure anyways
-            #
-            # TODO: Hardcode path
-            def load_data(local_dir, filename):
-                print(local_dir + "/" + filename)
-                with open(local_dir + "/" + filename, 'rb') as file:
-                    data = pickle.load(file)
-                return data
-            data = load_data(local_dir+"/data/clean_records/" + CHANNEL + "_Channel",
-                             str(r)+"_"+str(WINDOW_SIZE)+"_"+str(TIME_STEP)+"_rw_nf.pkl")
-            
             # Seems to extract and transform data prior to actually running the model on it
-            sample = data[0, 0:360].reshape(1, 360, 1)
+            # Grab first 360 elements, corresponding to 360 samples/1 second of data to match
+            # original specification
+            sample = [data[0:360]]
             results = model.predict(sample)
 
             # Seems to post processing results
@@ -111,5 +102,5 @@ class test_model(APIView):
             annotation = list(CLASSIFICATION.keys())[np.argmax(results)]
 
             # Actual integration begins here (take results and serialize it as a dict)
-            send_response = {"Annotation Classification for 360 unknown results": annotation}
+            send_response = {"Annotation Classification for 1 second of data": annotation}
             return Response(send_response, status=200)
