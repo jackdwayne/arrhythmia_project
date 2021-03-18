@@ -9,7 +9,7 @@ router.register(r'patients', views.PatientViewSet)
 # Currently testing integrating ML into app, might be used in actual implementation
 from django.urls import path
 urlpatterns = [
-    path('test/', views.test_model.as_view(), name='test')
+    path('predict_mlii_signals/', views.Predict_Signals.as_view(), name='api_predict_mlii_signals')
 ]
 
 # Combine router urls with other url patterns
