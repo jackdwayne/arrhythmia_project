@@ -6,22 +6,15 @@ from rest_framework.response import Response
 import django_filters
 from rest_framework import generics
 from django_filters.rest_framework import DjangoFilterBackend
-
-# Testing views and tensorflow
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
 import tensorflow as tf
 from tensorflow import keras
 import tensorflow_addons as tfa
 import numpy as np
-import pickle
 import os
-from os import path
 
 
 class SignalsViewSet(viewsets.ModelViewSet):
@@ -64,7 +57,7 @@ class PatientViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-# Current instructions seem to run the model per request
+# Resources to refer to
 # https://towardsdatascience.com/creating-a-machine-learning-based-web-application-using-django-5444e0053a09
 # https://medium.com/saarthi-ai/deploying-a-machine-learning-model-using-django-part-1-6c7de05c8d7
 # https://www.datagraphi.com/blog/post/2019/12/19/rest-api-guide-productionizing-a-machine-learning-model-by-creating-a-rest-api-with-python-django-and-django-rest-framework
@@ -103,7 +96,7 @@ class Predict_Signals(APIView):
 
         # Transform data to fit sample model format before prediction, using the start and end
         # parameters given in the get request
-        sample = [data]
+        sample = np.array([data])
         results = model.predict(sample)
 
         # Classify results of prediction
