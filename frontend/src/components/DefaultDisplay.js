@@ -6,17 +6,40 @@ import Divider from "@material-ui/core/Divider";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import Chart from "./Chart";
+//import Chart from "./Chart";
 import PatientTable from "./Patient";
 import Title from "./Title";
 import { useQuery } from "@apollo/client";
-import { signalQuery } from "../graphql-logic/queries";
+//import { signalQuery } from "../graphql-logic/queries";
+import { gql } from "@apollo/client";
+import Chart2 from "./Chart2";
+
+var patient_number = 100;
+var start_time = 0;
+var end_time = 60;
+
+const signalQuery = gql`
+  query getPatient {
+    patient
+      @rest(
+        type: "Patient"
+        path: "/?format=json&signal_record_name_id=${patient_number}&timeRange=${start_time},${end_time}"
+        endpoint: "signal"
+      ) {
+      count
+      next
+      previous
+      results
+    }
+  }
+`;
 
 let beats = [0.214, 1.028, 1.844, 2.631, 3.419, 4.206, 5.025];
 let annotations = ["N", "N", "N", "N", "N", "N", "N"];
 // Generate pairs of timestamps and readings
 function createData(time, amount) {
-  return { time, amount };
+  //return { time, amount };
+  return {x: time, y: amount};
 }
 
 const drawerWidth = 240;
@@ -68,12 +91,13 @@ function updateGraph(data) {
   let V5datapoints = [];
   let i = 0;
 
-  for (i; i < 2000; i++) {
+  for (i; i < signals.length; i++) {
     MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
     V5datapoints.push(createData(signals[i].time, signals[i].v5));
   }
   return { ml2: MLIIdatapoints, v5: V5datapoints };
 }
+
 
 export default function Sample() {
   const classes = useStyles();
@@ -90,23 +114,20 @@ export default function Sample() {
       <Grid container spacing={3}>
         {/* Chart */}
         <Grid item xs={12} md={10} lg={12}>
-          <Paper className={fixedHeightPaper}>
+          <Paper>
             <Title>ML II</Title>
-            <Chart
+            <Chart2
               key={1}
               data={signals.ml2}
-              beats={beats}
-              annotations={annotations}
+              //annotations={annotations}
             />
           </Paper>
           <Divider />
-          <Paper className={fixedHeightPaper}>
-            <Title>V1</Title>
-            <Chart
+          <Paper>
+            <Title>V5</Title>
+            <Chart2
               key={2}
               data={signals.v5}
-              beats={beats}
-              annotations={annotations}
             />
           </Paper>
         </Grid>
