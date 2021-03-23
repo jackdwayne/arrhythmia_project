@@ -29,7 +29,7 @@ class Patient(models.Model):
     init_value = models.CharField(max_length=1000, blank=True, null=True)       
     checksum = models.CharField(max_length=1000, blank=True, null=True) 
     block_size = models.CharField(max_length=1000, blank=True, null=True)
-    
+    has_annotations = models.BooleanField(default=False)
     def __int__(self):
         return self.record_name
 
@@ -38,5 +38,6 @@ class Signals(models.Model):
     time = models.FloatField()
     mlii = models.FloatField()
     v5 = models.FloatField()
+    annotation = models.CharField(max_length=10, blank=True, null=True)
     def __int__(self):
         return self.id
