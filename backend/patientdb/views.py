@@ -96,13 +96,12 @@ class Predict_Signals(APIView):
 
         # Transform data to fit sample model format before prediction, using the start and end
         # parameters given in the get request
-        sample = np.array([data])
+        sample = np.array([data[360*i:360*i+360] for i in range(len(data) // 360)])
         results = model.predict(sample)
 
         # Classify results of prediction
         np.argmax(results)
-        annotation = list(CLASSIFICATION.keys())[np.argmax(results)]
-
+        annotation = [list(CLASSIFICATION.keys())[np.argmax(result)] for result in results]
         # Return response if classification found
         if annotation == ' ':
             return HttpResponse(status=500)
