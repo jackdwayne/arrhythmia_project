@@ -10,7 +10,7 @@ import Paper from "@material-ui/core/Paper";
 import PatientTable from "./Patient";
 import Title from "./Title";
 import { useQuery } from "@apollo/client";
-import { signalQuery } from "../graphql-logic/queries";
+//import { signalQuery } from "../graphql-logic/queries";
 import { gql } from "@apollo/client";
 import Chart2 from "./Chart2";
 
@@ -18,7 +18,21 @@ var patient_number = 100;
 var start_time = 0;
 var end_time = 10000;
 
-
+const signalQuery = gql`
+  query getPatient {
+    patient
+      @rest(
+        type: "Patient"
+        path: "/?format=json&signal_record_name_id=${patient_number}&timeRange=${start_time},${end_time}"
+        endpoint: "signal"
+      ) {
+      count
+      next
+      previous
+      results
+    }
+  }
+`;
 
 let beats = [0.214, 1.028, 1.844, 2.631, 3.419, 4.206, 5.025];
 let annotations = ["N", "N", "N", "N", "N", "N", "N"];
