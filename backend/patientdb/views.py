@@ -34,7 +34,7 @@ class SignalsViewSet(viewsets.ModelViewSet):
         time = self.request.query_params.get('timeRange')
 
         if (start and end):
-            queryset = queryset.filter(time__gte=start, time__lte=end)
+            queryset = queryset.filter(time__gte=start, time__lt=end)
         if (time):
             queryset = queryset.filter(time__range=time.split(','))
 
@@ -91,18 +91,17 @@ class Predict_Signals(APIView):
         # Get data from database
         # TODO: Need to dynamically pick up record name and type of values (mlii vs v5)
         #       Currently hardcoded: using signal patient record 100 and using mlii
-        data = Signals.objects.filter(signal_record_name=100, time__gte=start, time__lte=end).order_by("time").values("mlii")
+        data = Signals.objects.filter(signal_record_name=100, time__gte=start, time__lt=end).order_by("time").values("mlii")
         data = [[time["mlii"]] for time in data]
 
         # Transform data to fit sample model format before prediction, using the start and end
         # parameters given in the get request
-        sample = np.array([data])
+        sample = np.array([data[360*i:360*i+360] for i in range(len(data) // 360)])
         results = model.predict(sample)
 
         # Classify results of prediction
         np.argmax(results)
-        annotation = list(CLASSIFICATION.keys())[np.argmax(results)]
-
+        annotation = [list(CLASSIFICATION.keys())[np.argmax(result)] for result in results]
         # Return response if classification found
         if annotation == ' ':
             return HttpResponse(status=500)
