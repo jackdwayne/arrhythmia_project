@@ -152,7 +152,7 @@ def extractTimeData(p_signal_time, signal_name, record_value):
         formatted_pt_time_DF["signal_record_name"].values[count] = record_value
         formatted_pt_time_DF["time"].values[count] = time
         
-        formatted_pt_time_DF["MLII"].values[count] = element[0]
+        formatted_pt_time_DF[df_columns[1]].values[count] = element[0]
 
         formatted_pt_time_DF[df_columns[2]].values[count] = float(element[1])
         tempTime += 0.0027777777777777777777777777
