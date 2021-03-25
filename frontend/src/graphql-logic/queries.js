@@ -10,10 +10,6 @@ export const signalQuery = gql`
         path: "/?format=json&signal_record_name=4&timeRange=0,30"
         endpoint: "signal"
       ) {
-      count
-      next
-      previous
-      results
     }
   }
 `;
