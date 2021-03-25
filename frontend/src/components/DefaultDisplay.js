@@ -16,7 +16,7 @@ import Chart2 from "./Chart2";
 
 var patient_number = 100;
 var start_time = 0;
-var end_time = 60;
+var end_time = 10000;
 
 const signalQuery = gql`
   query getPatient {
@@ -87,6 +87,9 @@ const useStyles = makeStyles((theme) => ({
 
 function updateGraph(data) {
   let signals = data.patient.results;
+  // Here is the next page
+  let next = data.patient.next;
+  console.log(next);
   let MLIIdatapoints = [];
   let V5datapoints = [];
   let i = 0;
