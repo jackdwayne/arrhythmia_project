@@ -1,67 +1,45 @@
 import React from "react";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { Component } from "react";
+import axios from "axios"
 
-const CREATE_USER = gql`
-  mutation createUser($name: String!, $lastName: String!, $userType: String!) {
-    createUser(name: $name, lastName: $lastName, userType: $userType) {
-      id
-      name
-      lastName
-      userType
-    }
+
+export class AddUser extends Component{
+  
+  constructor(props, context){
+    super(props)
+    this.fileInputButton = this.fileInputButton.bind(this);
+    this.fileInputHandler = this.fileInputHandler.bind(this);
+
   }
-`;
 
-export function CreateUser() {
-  let inputName, inputLastName, inputUserType;
+  state = {
+    selectedFile: null
+  }
+  
+  componentDidMount = () => {
+    const {selectedFile} = this.props;
+    this.setState({ selectedFile })
+  }
 
-  const [createUser, { data }] = useMutation(CREATE_USER);
+  fileInputHandler(event){
+    console.log(event.target.files[0])
+    this.setState({
+      selectedFile: event.target.files[0]
+    })
+  }
 
-  return (
-    <div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          createUser({
-            variables: {
-              name: inputName.value,
-              lastName: inputLastName.value,
-              userType: inputUserType.value,
-            },
-          });
-          inputName.value = "";
-          inputLastName.value = "";
-          inputUserType.value = "";
-        }}
-        style={{ marginTop: "2em", marginBottom: "2em" }}
-      >
-        <label>Name: </label>
-        <input
-          ref={(node) => {
-            inputName = node;
-          }}
-          style={{ marginRight: "1em" }}
-        />
+  fileInputButton(event) {
+    let currentFile = this.state.selectedFile;
 
-        <label>Last Name: </label>
-        <input
-          ref={(node) => {
-            inputLastName = node;
-          }}
-          style={{ marginRight: "1em" }}
-        />
-        <label>User Type: </label>
-        <input
-          ref={(node) => {
-            inputUserType = node;
-          }}
-          style={{ marginRight: "1em" }}
-        />
-
-        <button type="submit" style={{ cursor: "pointer" }}>
-          Add a User
-        </button>
-      </form>
-    </div>
-  );
+  }
+  
+  render(){
+    return(
+      <div className="AddUser">
+        <input onChange={this.fileInputHandler} type="file" name="patientRecord"/>
+        <button onClick={this.fileInputButton}>Submit</button>
+      </div>
+    );
+  }
 }
+

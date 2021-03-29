@@ -16,7 +16,7 @@ import MainList from "./MainList";
 import PropTypes from "prop-types";
 import PatientTable from "./Patient";
 import AllPatients from "./AllPatients";
-import { CreateUser } from "./Users";
+import { AddUser } from "./Users";
 
 function Copyright() {
   return (
@@ -141,7 +141,7 @@ class Dashboard extends React.Component {
     } else if (listIndex === 1) {
       centerComponent = <AllPatients />;
     } else if (listIndex === 2) {
-      centerComponent = <CreateUser />;
+      centerComponent = <AddUser />;
     }
     return (
       <div className={classes.root}>
