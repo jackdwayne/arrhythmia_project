@@ -58,16 +58,22 @@ class PatientViewSet(viewsets.ModelViewSet):
         return queryset
 
 class Predict_Signals(APIView):
+    """
+    Predict_Signals is an API endpoint that allows users to run and get results
+    from a machine-learning model on the current dataset.
+
+    :param APIView: Django's View in the REST framework
+    :type APIView: Subclass of View
+    """
     def get(self, request):
-        # Required params start and end, extract time slice
+        """
+        get implements the GET request for the ML view, returns a list of 
+        predicted annotations.
+        """
+        # Extract required params
         start = int(request.GET['start'])
         end = int(request.GET['end'])
         patient_id = int(request.GET['signal_record_name'])
-
-        # start and end are params that specify time. Get number of samples
-        # based on the time given (360 samples per second)
-        # start *= 360
-        # end *= 360
 
         # Specifying parameters and classification for the model
         WINDOW_SIZE = 360
@@ -87,7 +93,7 @@ class Predict_Signals(APIView):
 
         # Get data from database
         # TODO: Need to dynamically pick up type of leads (mlii vs v5)
-        #       Currently hardcoded: using mlii
+        #       Currently hardcoded lead type mlii
         data = Signals.objects.filter(
             signal_record_name=patient_id, time__gte=start, time__lt=end).order_by("time").values("mlii")
         data = [[time["mlii"]] for time in data]
