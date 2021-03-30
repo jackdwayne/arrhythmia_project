@@ -46,7 +46,7 @@ class SignalsViewSet(viewsets.ModelViewSet):
             if len(time) == 2:
                 queryset = queryset.filter(
                     signal_record_name=patient_id, time__gte=time[0], time__lt=time[1])
-        else:
+        elif (start and not end or end and not start):
             # Error, bad request
             return None
 
