@@ -32,11 +32,22 @@ class SignalsViewSet(viewsets.ModelViewSet):
         start = self.request.query_params.get('start')
         end = self.request.query_params.get('end')
         time = self.request.query_params.get('timeRange')
+        patient_id = self.request.query_params.get('signal_record_name')
 
         if (start and end):
-            queryset = queryset.filter(time__gte=start, time__lt=end)
-        if (time):
-            queryset = queryset.filter(time__range=time.split(','))
+            # Specifying start and end is important as there is math being done in the backend to process
+            # the results
+            queryset = queryset.filter(
+                signal_record_name=patient_id, time__gte=start, time__lt=end)
+        elif (time):
+            # Silently enforce and interpolate timeRange into the same format as start and end
+            time = time.split(',')
+            if len(time) == 2:
+                queryset = queryset.filter(
+                    signal_record_name=patient_id, time__gte=time[0], time__lt=time[1])
+        else:
+            # Error, bad request
+            queryset = None
 
         return queryset
 
@@ -57,6 +68,7 @@ class PatientViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+
 class Predict_Signals(APIView):
     """
     Predict_Signals is an API endpoint that allows users to run and get results
@@ -65,6 +77,7 @@ class Predict_Signals(APIView):
     :param APIView: Django's View in the REST framework
     :type APIView: Subclass of View
     """
+
     def get(self, request):
         """
         get implements the GET request for the ML view, returns a list of 
