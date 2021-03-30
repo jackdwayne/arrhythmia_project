@@ -34,6 +34,7 @@ class SignalsViewSet(viewsets.ModelViewSet):
         time = self.request.query_params.get('timeRange')
         patient_id = self.request.query_params.get('signal_record_name')
 
+        # Get time slice of data
         if (start and end):
             # Specifying start and end is important as there is math being done in the backend to process
             # the results
@@ -47,7 +48,7 @@ class SignalsViewSet(viewsets.ModelViewSet):
                     signal_record_name=patient_id, time__gte=time[0], time__lt=time[1])
         else:
             # Error, bad request
-            queryset = None
+            return None
 
         return queryset
 
@@ -83,10 +84,14 @@ class Predict_Signals(APIView):
         get implements the GET request for the ML view, returns a list of 
         predicted annotations.
         """
+        #TODO: Current get request accpets one model, as given by the sponsor. 
+        #      Later, when the next model is given, integrate it here
+
         # Extract required params
         start = int(request.GET['start'])
         end = int(request.GET['end'])
         patient_id = int(request.GET['signal_record_name'])
+        lead_type = request.GET['lead']
 
         # Specifying parameters and classification for the model
         WINDOW_SIZE = 360
@@ -96,7 +101,8 @@ class Predict_Signals(APIView):
         CLASSIFICATION = {' ': 0, 'N': 1, '"': 2, 'A': 3, 'E': 4, 'F': 5, 'J': 6, 'L': 7, '!': 8, 'Q': 9,
                           'R': 10, 'S': 11, 'V': 12, 'Z': 13, '[': 14, ']': 15, 'a': 16, 'e': 17, 'f': 18, 'j': 19}
 
-        # Current location of the model given, might need to refactor to hardcode whole name
+        # Current location of the model given 
+        # TODO: might need to refactor to hardcode whole name
         local_dir = os.path.abspath('') + "/patientdb/LSTM_Classification" + \
             "/LSTM_RW_Classification_" + \
             str(WINDOW_SIZE) + "_e" + str(EPOCHS) + ".h5"
@@ -105,11 +111,9 @@ class Predict_Signals(APIView):
         model = tf.keras.models.load_model(local_dir)
 
         # Get data from database
-        # TODO: Need to dynamically pick up type of leads (mlii vs v5)
-        #       Currently hardcoded lead type mlii
         data = Signals.objects.filter(
-            signal_record_name=patient_id, time__gte=start, time__lt=end).order_by("time").values("mlii")
-        data = [[time["mlii"]] for time in data]
+            signal_record_name=patient_id, time__gte=start, time__lt=end).order_by("time").values(lead_type)
+        data = [[time[lead_type]] for time in data]
 
         # Transform data to fit sample model format before prediction, using the start and end
         # parameters given in the get request
@@ -121,7 +125,21 @@ class Predict_Signals(APIView):
         np.argmax(results)
         annotation = [list(CLASSIFICATION.keys())[np.argmax(result)]
                       for result in results]
-        # Return response if classification found
-        if annotation == ' ':
+        # If no annotation is found, return error
+        if len(annotation) == 0:
             return HttpResponse(status=500)
-        return Response(annotation, status=200)
+
+        # Map annotations to their time slot, each annotation is mapped in the
+        # middle between the two time slices given into the ML model
+        mapped_annotation = {}
+        prev = start
+        j = 0
+        for i in range(start + 1, end + 1):
+            # Compute current index
+            index = (i + prev) / 2
+            mapped_annotation[index] = annotation[j]
+            # Get next index
+            prev = i
+            j += 1
+        # Return response if classification found
+        return Response(mapped_annotation, status=200)
