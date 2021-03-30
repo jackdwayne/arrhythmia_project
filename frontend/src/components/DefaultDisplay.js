@@ -16,7 +16,6 @@ import Chart2 from "./Chart2";
 import { Button } from "@material-ui/core";
 
 var patient_number = 100;
-
 var queryPath = "/?format=json&signal_record_name_id=".concat(patient_number.toString());
 
 const signalQuery = gql`
@@ -105,6 +104,7 @@ const useStyles = makeStyles((theme) => ({
 function updateGraph(data) {
   let signals = data.patient.results;
   let next = data.patient.next;
+
   let MLIIdatapoints = [];
   let V5datapoints = [];
   let i = 0;
