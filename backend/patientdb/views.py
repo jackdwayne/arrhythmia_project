@@ -57,15 +57,12 @@ class PatientViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-# Resources to refer to
-# https://towardsdatascience.com/creating-a-machine-learning-based-web-application-using-django-5444e0053a09
-# https://medium.com/saarthi-ai/deploying-a-machine-learning-model-using-django-part-1-6c7de05c8d7
-# https://www.datagraphi.com/blog/post/2019/12/19/rest-api-guide-productionizing-a-machine-learning-model-by-creating-a-rest-api-with-python-django-and-django-rest-framework
 class Predict_Signals(APIView):
     def get(self, request):
         # Required params start and end, extract time slice
         start = int(request.GET['start'])
         end = int(request.GET['end'])
+        patient_id = int(request.GET['signal_record_name'])
 
         # start and end are params that specify time. Get number of samples
         # based on the time given (360 samples per second)
@@ -79,7 +76,7 @@ class Predict_Signals(APIView):
         CHANNEL = 'MLII'
         CLASSIFICATION = {' ': 0, 'N': 1, '"': 2, 'A': 3, 'E': 4, 'F': 5, 'J': 6, 'L': 7, '!': 8, 'Q': 9,
                           'R': 10, 'S': 11, 'V': 12, 'Z': 13, '[': 14, ']': 15, 'a': 16, 'e': 17, 'f': 18, 'j': 19}
-        
+
         # Current location of the model given, might need to refactor to hardcode whole name
         local_dir = os.path.abspath('') + "/patientdb/LSTM_Classification" + \
             "/LSTM_RW_Classification_" + \
@@ -89,19 +86,22 @@ class Predict_Signals(APIView):
         model = tf.keras.models.load_model(local_dir)
 
         # Get data from database
-        # TODO: Need to dynamically pick up record name and type of values (mlii vs v5)
-        #       Currently hardcoded: using signal patient record 100 and using mlii
-        data = Signals.objects.filter(signal_record_name=100, time__gte=start, time__lt=end).order_by("time").values("mlii")
+        # TODO: Need to dynamically pick up type of leads (mlii vs v5)
+        #       Currently hardcoded: using mlii
+        data = Signals.objects.filter(
+            signal_record_name=patient_id, time__gte=start, time__lt=end).order_by("time").values("mlii")
         data = [[time["mlii"]] for time in data]
 
         # Transform data to fit sample model format before prediction, using the start and end
         # parameters given in the get request
-        sample = np.array([data[360*i:360*i+360] for i in range(len(data) // 360)])
+        sample = np.array([data[360*i:360*i+360]
+                           for i in range(len(data) // 360)])
         results = model.predict(sample)
 
         # Classify results of prediction
         np.argmax(results)
-        annotation = [list(CLASSIFICATION.keys())[np.argmax(result)] for result in results]
+        annotation = [list(CLASSIFICATION.keys())[np.argmax(result)]
+                      for result in results]
         # Return response if classification found
         if annotation == ' ':
             return HttpResponse(status=500)
