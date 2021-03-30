@@ -13,17 +13,18 @@ import { useQuery } from "@apollo/client";
 //import { signalQuery } from "../graphql-logic/queries";
 import { gql } from "@apollo/client";
 import Chart2 from "./Chart2";
+import { Button } from "@material-ui/core";
 
 var patient_number = 100;
-var start_time = 0;
-var end_time = 60;
+
+var queryPath = "/?format=json&signal_record_name_id=".concat(patient_number.toString());
 
 const signalQuery = gql`
-  query getPatient {
-    patient
+  query getPatient($qPath: String) {
+    patient(qPath: $qPath)
       @rest(
         type: "Patient"
-        path: "/?format=json&signal_record_name_id=${patient_number}&timeRange=${start_time},${end_time}"
+        path: $qPath
         endpoint: "signal"
       ) {
       count
@@ -33,6 +34,22 @@ const signalQuery = gql`
     }
   }
 `;
+
+// const signalQuery = gql`
+//   query getPatient {
+//     patient
+//       @rest(
+//         type: "Patient"
+//         path: "/?format=json&signal_record_name_id=${patient_number}&timeRange=${start_time},${end_time}"
+//         endpoint: "signal"
+//       ) {
+//       count
+//       next
+//       previous
+//       results
+//     }
+//   }
+// `;
 
 let beats = [0.214, 1.028, 1.844, 2.631, 3.419, 4.206, 5.025];
 let annotations = ["N", "N", "N", "N", "N", "N", "N"];
@@ -87,6 +104,7 @@ const useStyles = makeStyles((theme) => ({
 
 function updateGraph(data) {
   let signals = data.patient.results;
+  let next = data.patient.next;
   let MLIIdatapoints = [];
   let V5datapoints = [];
   let i = 0;
@@ -96,18 +114,25 @@ function updateGraph(data) {
     V5datapoints.push(createData(signals[i].time, signals[i].v5));
   }
   return { ml2: MLIIdatapoints, v5: V5datapoints };
+  //return { ml2: MLIIdatapoints, v5: V5datapoints, next: data.patient.next };
 }
-
 
 export default function Sample() {
   const classes = useStyles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-  const { loading, error, data } = useQuery(signalQuery);
-  const [dataset, setDataset] = useState(0);
+  const { loading, error, data, fetchMore } = useQuery(signalQuery, {
+    variables: {qPath: queryPath},
+  });
+  //const [next, setNext] = useState(0);
+
 
   if (loading) return "Loading...";
   if (error) return `Error! ${error.message}`;
-  let signals = updateGraph(data) 
+  let signals = updateGraph(data);
+  //setNext(signals.next); 
+
+  const hasNextPage = data.patient.next;
+
 
   return (
     <Container maxWidth="lg" className={classes.container}>
@@ -122,6 +147,41 @@ export default function Sample() {
               //annotations={annotations}
             />
           </Paper>
+          {data.patient.previous && (
+            <Button
+              onClick={() => {
+                fetchMore({
+                  variables: {
+                    qPath: (data.patient.previous).slice(29),
+                  },
+                  updateQuery: (prevResult, { fetchMoreResult }) => {
+                    return fetchMoreResult
+                  },
+                });
+              }
+            }
+            >
+            Load Previous
+            </Button>
+          )}
+          {data.patient.next && (
+            <Button
+              onClick={() => {
+                fetchMore({
+                  variables: {
+                    qPath: (data.patient.next).slice(29),
+                  },
+                  updateQuery: (prevResult, { fetchMoreResult }) => {
+                    return fetchMoreResult
+                  },
+                });
+              }
+            }
+            >
+            Load Next
+            </Button>
+          )}
+          
           <Divider />
           <Paper>
             <Title>V5</Title>
