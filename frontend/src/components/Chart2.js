@@ -36,8 +36,8 @@ class Chart2 extends Component {
       }],    
       rangeSelector: {
         inputFields: {
-          startValue: 0,
-          endValue: 10,
+          startValue: this.props.data[0].time,
+          endValue: this.props.data[10].time,
           valueFormatString: "###0"
         },
         
