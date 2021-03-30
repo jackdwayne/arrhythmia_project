@@ -73,7 +73,7 @@ def printData(recordNumber):
 
         if attr == "p_signal":
             formatted_patient_DF['p_signal'].values[0] = getattr(record, attr)
-            p_signal_time = getattr(record, attr )
+            p_signal_time = getattr(record, attr)
 
         if attr == "d_signal":
             formatted_patient_DF['d_signal'].values[0] = getattr(record, attr)
@@ -123,7 +123,8 @@ def printData(recordNumber):
         # print each attribute name and its associated value for the record
         # print("\n%s: %s" % (attr, getattr(record, attr)))
 
-    extractTimeData(p_signal_time, signal_name, recordValue)
+    timeDF = extractTimeData(p_signal_time, signal_name, recordValue)
+    extractAnnotations(filePath, timeDF, recordNumber)
     writePatientCSV(formatted_patient_DF, recordValue, 'All_Attributes_')
 
 
@@ -131,7 +132,7 @@ def printData(recordNumber):
 def buildTimeDFCol(signalNames):
     df_columns = ["time"]
     count = 1
-    
+
     for element in signalNames:
         df_columns.append(element)
         count += 1
@@ -139,6 +140,33 @@ def buildTimeDFCol(signalNames):
     df_columns.append("signal_record_name")
     df_columns.append("annotation")
     return df_columns
+
+
+def extractAnnotations(filePath, timeDF, recordNumber):
+    # get specific record from MIT data set
+    ann = wfdb.rdann(filePath, 'atr')
+
+    # get all attributes of record object and store in attributes
+    attributes = vars(ann)
+
+    dfCounter = 0
+    annoCounter = 0
+    lenAnno = len(attributes["sample"])
+
+    while annoCounter < lenAnno:
+        annoIndex = attributes["sample"][annoCounter]
+        tempTime = 0.0027777777777777777777777777 * annoIndex
+        annoTime = round(tempTime, 3)
+
+        if annoTime == timeDF["time"][dfCounter]:
+            # print("\nannoTime: %f\ttimeDF time: %f\n" % (annoTime, timeDF["time"][dfCounter]))
+            timeDF["annotation"][dfCounter] = attributes["symbol"][annoCounter]
+            annoCounter += 1
+        
+        dfCounter += 1
+    # print("\natt: %s\n" % attributes["sample"][5])
+
+    writePatientCSV(timeDF, recordNumber, "TimeData_")
 
 
 def extractTimeData(p_signal_time, signal_name, record_value):
@@ -151,14 +179,14 @@ def extractTimeData(p_signal_time, signal_name, record_value):
     for element in p_signal_time:
         formatted_pt_time_DF["signal_record_name"].values[count] = record_value
         formatted_pt_time_DF["time"].values[count] = time
-        
+
         formatted_pt_time_DF[df_columns[1]].values[count] = element[0]
 
         formatted_pt_time_DF[df_columns[2]].values[count] = float(element[1])
         tempTime += 0.0027777777777777777777777777
         time = round(tempTime, 3)
         count += 1
-    writePatientCSV(formatted_pt_time_DF, record_value, "TimeData_")
+    return formatted_pt_time_DF
 
 
 def writePatientCSV(patientData_DF, rec_num, fileName):
@@ -177,3 +205,4 @@ if __name__ == '__main__':
     print("You entered record number: " + rec_num)
 
     printData(rec_num)
+
