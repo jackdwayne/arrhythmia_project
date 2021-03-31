@@ -36,6 +36,8 @@ class Patient(models.Model):
 class Signals(models.Model):
     signal_record_name = models.ForeignKey(Patient, related_name='signal_record_name', on_delete=models.CASCADE)
     time = models.FloatField()
+    # TODO: Update models to dynamically pick different types of lead
+    #       Requires update to the database model though, which hasn't been made as of 3/30
     mlii = models.FloatField()
     v5 = models.FloatField()
     annotation = models.CharField(max_length=10, blank=True, null=True)
