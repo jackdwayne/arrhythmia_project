@@ -214,8 +214,19 @@ export default function Sample() {
     let signals = updateGraph(sigData);
     const hasNextPage = sigData.patient.next;
 
-
     return (
+      <div>
+      <div >
+      <Select
+        placeholder="Choose Patient Record"
+        onChange={handlePatientSelect}
+        autoWidth
+      >
+        <MenuItem value={103}>103</MenuItem>
+        <MenuItem value={205}>205</MenuItem>
+      </Select>
+      <button onClick={() => handlePatientSubmit()}>Submit</button>
+      </div>
       <Container maxWidth="lg" className={classes.container}>
         <Grid container spacing={3}>
           {/* Chart */}
@@ -282,6 +293,7 @@ export default function Sample() {
 
         <Box pt={4}></Box>
       </Container>
+      </div>
     );
   }
 }
