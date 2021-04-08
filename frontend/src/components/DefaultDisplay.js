@@ -131,7 +131,7 @@ export default function Sample() {
 
   const [query, setQuery] = useState("");
   const [patient_number, setPatient_number] = useState(0);
-  const [queryPath, setQueryPath] = useState("/?format=json&signal_record_name=103");
+  const [queryPath, setQueryPath] = useState("/?format=json&signal_record_name=");
   const [predictionPath, setPredictionPath] = useState("/?format=json&signal_record_name=103&lead=mlii&start=0&end=10")
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(0);
@@ -140,7 +140,7 @@ export default function Sample() {
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   const [loadGraphs, { called: calledSig, loading: graphLoading, error: graphError, data: sigData , fetchMore }] = useLazyQuery(signalQuery, {
-    variables: { qPath: queryPath },
+    variables: { qPath: queryPath.concat(String(patient_number)) },
   });
 
   const [loadPredictions, { called: calledPred, loading: predictLoading, error: predictError, data: predictData }] = useLazyQuery(predictQuery, {
