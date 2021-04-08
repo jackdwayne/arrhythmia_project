@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'patientdb',
     'debug_toolbar',
     'django_filters',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -86,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'patient_db',
         'USER': 'postgres',
-        'PASSWORD': 'heart420',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': '5432',
      }
