@@ -1,13 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
+import { RestLink } from "apollo-link-rest";
+
+// Setup endpoint
+// Documentation to refer to:
+//      https://www.apollographql.com/docs/link/links/rest/
+const restLink = new RestLink({
+  endpoints: {
+    signal: "http://localhost:8000/signals",
+    patient: "http://localhost:8000/patient",
+    predict: "http://localhost:8000/predict_mlii_signals",
+  },
+});
 
 const client = new ApolloClient({
-  uri: 'http://localhost:8000/graphql/',
-  cache: new InMemoryCache()
+  link: restLink,
+  cache: new InMemoryCache(),
 });
 
 ReactDOM.render(
@@ -16,7 +28,7 @@ ReactDOM.render(
       <App />
     </ApolloProvider>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function

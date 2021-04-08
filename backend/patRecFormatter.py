@@ -16,9 +16,9 @@ def printData(recordNumber):
     df_columns = ["record_name", "n_sig", "fs", "counter_freq", "base_counter", "sig_len", "base_time", "base_date",
                   "comments", "sig_name", "p_signal", "d_signal", "e_p_signal", "file_name", "fmt", "samps_per_frame",
                   "skew", "byte_offset", "adc_gain", "baseline", "units", "adc_res", "adc_zero", "init_value",
-                  "checksum", "block_size"]
+                  "checksum", "block_size", "has_annotations"]
 
-    formatted_patient_DF = pd.DataFrame(index=np.arange(655000), columns=df_columns)
+    formatted_patient_DF = pd.DataFrame(index=np.arange(1), columns=df_columns)
 
     # get specific record from MIT data set
     record = wfdb.rdrecord(filePath)
@@ -123,7 +123,8 @@ def printData(recordNumber):
         # print each attribute name and its associated value for the record
         # print("\n%s: %s" % (attr, getattr(record, attr)))
 
-    extractTimeData(p_signal_time, signal_name, recordValue)
+    timeDF = extractTimeData(p_signal_time, signal_name, recordValue)
+    extractAnnotations(filePath, timeDF, recordNumber)
     writePatientCSV(formatted_patient_DF, recordValue, 'All_Attributes_')
 
 
@@ -131,29 +132,61 @@ def printData(recordNumber):
 def buildTimeDFCol(signalNames):
     df_columns = ["time"]
     count = 1
+
     for element in signalNames:
         df_columns.append(element)
         count += 1
 
     df_columns.append("signal_record_name")
+    df_columns.append("annotation")
     return df_columns
+
+
+def extractAnnotations(filePath, timeDF, recordNumber):
+    # get specific record from MIT data set
+    ann = wfdb.rdann(filePath, 'atr')
+
+    # get all attributes of record object and store in attributes
+    attributes = vars(ann)
+
+    dfCounter = 0
+    annoCounter = 0
+    lenAnno = len(attributes["sample"])
+
+    while annoCounter < lenAnno:
+        annoIndex = attributes["sample"][annoCounter]
+        tempTime = 0.0027777777777777777777777777 * annoIndex
+        annoTime = round(tempTime, 3)
+
+        if annoTime == timeDF["time"][dfCounter]:
+            # print("\nannoTime: %f\ttimeDF time: %f\n" % (annoTime, timeDF["time"][dfCounter]))
+            timeDF["annotation"][dfCounter] = attributes["symbol"][annoCounter]
+            annoCounter += 1
+        
+        dfCounter += 1
+    # print("\natt: %s\n" % attributes["sample"][5])
+
+    writePatientCSV(timeDF, recordNumber, "TimeData_")
 
 
 def extractTimeData(p_signal_time, signal_name, record_value):
     df_columns = buildTimeDFCol(signal_name)
-    formatted_pt_time_DF = pd.DataFrame(index=np.arange(655000), columns=df_columns)
+    formatted_pt_time_DF = pd.DataFrame(index=np.arange(650000), columns=df_columns)
     time = 0.0
+    tempTime = 0.0
     count = 0
 
     for element in p_signal_time:
+        formatted_pt_time_DF["signal_record_name"].values[count] = record_value
         formatted_pt_time_DF["time"].values[count] = time
-        formatted_pt_time_DF["signal_record_name"].values[count] = 4
-        formatted_pt_time_DF["MLII"].values[count] = element[0]
+
+        formatted_pt_time_DF[df_columns[1]].values[count] = element[0]
 
         formatted_pt_time_DF[df_columns[2]].values[count] = float(element[1])
-        time += 0.003
+        tempTime += 0.0027777777777777777777777777
+        time = round(tempTime, 3)
         count += 1
-    writePatientCSV(formatted_pt_time_DF, record_value, "TimeData_")
+    return formatted_pt_time_DF
 
 
 def writePatientCSV(patientData_DF, rec_num, fileName):
@@ -161,7 +194,7 @@ def writePatientCSV(patientData_DF, rec_num, fileName):
     curWorDir = os.getcwd()
 
     # filename
-    ptFormattedFile = curWorDir + "/" + "Formatted_Patient_" + fileName + str(rec_num)
+    ptFormattedFile = curWorDir + "/" + "Formatted_Patient_" + fileName + str(rec_num) + ".csv"
 
     # write formatted patient data to new csv file
     patientData_DF.to_csv(ptFormattedFile, sep=',', encoding='utf-8', index=False)
@@ -172,3 +205,4 @@ if __name__ == '__main__':
     print("You entered record number: " + rec_num)
 
     printData(rec_num)
+

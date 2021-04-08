@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'o^c7k%ovo3#_$0jf80qsfq!+9e$m=muh5&y%ekg+rm)4h(*9hd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]']
 
 
 # Application definition
@@ -37,10 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
-    'graphene_django',
+    'rest_framework',
     'patientdb',
     'debug_toolbar',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -83,10 +84,10 @@ WSGI_APPLICATION = 'mainapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'projectdb',
+        'NAME': 'patient_db',
         'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'project.co9crwajijjy.us-east-1.rds.amazonaws.com',
+        'PASSWORD': 'heart420',
+        'HOST': 'localhost',
         'PORT': '5432',
      }
 }
@@ -130,13 +131,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-GRAPHENE = {
-    'SCHEMA' : 'mainapp.schema.schema',
-    'RELAY_CONNECTION_MAX_LIMIT': 2000,
-    'MIDDLEWARE': [
-        'graphene_django.debug.DjangoDebugMiddleware'
-    ],
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 21600
 }
+
+
 
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
@@ -163,3 +163,11 @@ DEBUG_TOOLBAR_PANELS = [
         'debug_toolbar.panels.redirects.RedirectsPanel',
     ]
 
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+
+STATIC_URL = '/static/'
+
+
+ROOT_URLCONF = 'mainapp.urls'
