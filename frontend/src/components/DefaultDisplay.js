@@ -15,8 +15,9 @@ import { gql } from "@apollo/client";
 import Chart2 from "./Chart2";
 import { Button } from "@material-ui/core";
 
-var patient_number = 100;
-var queryPath = "/?format=json&signal_record_name_id=".concat(patient_number.toString());
+var patient_number = 103;
+var queryPath = "/?format=json&signal_record_name=".concat(patient_number.toString());
+var predictionPath = "/?format=json&signal_record_name=103&lead=mlii&start=0&end=10";
 
 const signalQuery = gql`
   query getPatient($qPath: String) {
@@ -33,6 +34,27 @@ const signalQuery = gql`
     }
   }
 `;
+
+const predictQuery = gql`
+  query getPrediction($pPath: String) {
+    predict(pPath: $pPath)
+      @rest(
+        type: "Patient"
+        path: $pPath
+        endpoint: "predict"
+      ) {
+        results
+      }
+  }
+`;
+
+var request = new XMLHttpRequest();
+request.open("GET", "http://127.0.0.1:8000/predict_mlii_signals/?format=json&signal_record_name=103&lead=mlii&start=0&end=1800");
+request.send();
+request.onload = function() {
+  var data = JSON.parse(request.response);
+  console.log(data[0.5]);
+}
 
 // const signalQuery = gql`
 //   query getPatient {
@@ -120,15 +142,25 @@ function updateGraph(data) {
 export default function Sample() {
   const classes = useStyles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  const { loading: predictLoading, error: predictError, data: predictData } = useQuery(predictQuery, {
+    variables: {pPath: predictionPath},
+  });
   const { loading, error, data, fetchMore } = useQuery(signalQuery, {
     variables: {qPath: queryPath},
   });
+  
+  
   //const [next, setNext] = useState(0);
 
 
   if (loading) return "Loading...";
   if (error) return `Error! ${error.message}`;
   let signals = updateGraph(data);
+
+  //if (predictLoading) return "Loading...";
+  //if (predictError) return `Error! ${predictError.message}`;
+  console.log(predictData.predict.results);
+
   //setNext(signals.next); 
 
   const hasNextPage = data.patient.next;

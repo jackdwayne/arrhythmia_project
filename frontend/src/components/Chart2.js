@@ -22,7 +22,7 @@ class Chart2 extends Component {
         },
         axisY: {
           minimum: -1,
-          maximum: 1.5,
+          maximum: 2.0,
           interval: 0.25,
           crosshair: {
             enabled: true,
@@ -32,7 +32,13 @@ class Chart2 extends Component {
         data: [{
           type: "spline",
           dataPoints: this.props.data
-        }]
+        },
+      {
+        type: "line",
+        dataPoints: [
+          {x: 0.5 }
+        ]
+      }]
       }],    
       rangeSelector: {
         inputFields: {

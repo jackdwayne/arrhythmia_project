@@ -13,6 +13,7 @@ const restLink = new RestLink({
   endpoints: {
     signal: "http://localhost:8000/signals",
     patient: "http://localhost:8000/patient",
+    predict: "http://localhost:8000/predict_mlii_signals",
   },
 });
 

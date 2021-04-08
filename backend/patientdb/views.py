@@ -131,6 +131,7 @@ class Predict_Signals(APIView):
 
         # Map annotations to their time slot, each annotation is mapped in the
         # middle between the two time slices given into the ML model
+        tempDict = {}
         mapped_annotation = {}
         prev = start
         j = 0
@@ -142,4 +143,5 @@ class Predict_Signals(APIView):
             prev = i
             j += 1
         # Return response if classification found
-        return Response(mapped_annotation, status=200)
+        tempDict["results"] = mapped_annotation
+        return Response(tempDict, status=200)
