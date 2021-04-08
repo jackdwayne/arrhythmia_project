@@ -36,7 +36,7 @@ class Chart2 extends Component {
       {
         type: "line",
         dataPoints: [
-          {x: 0.5 }
+
         ]
       }]
       }],    
