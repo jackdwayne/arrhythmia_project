@@ -13,7 +13,7 @@ class Patient(models.Model):
     base_date = models.CharField(max_length=1000, blank=True, null=True)
     comments = models.CharField(max_length=1000, blank=True, null=True) 
     sig_name = models.CharField(max_length=1000, blank=True, null=True) 
-    p_signal = models.CharField(max_length=1000, blank=True, null=True) 
+    #p_signal = models.CharField(max_length=1000, blank=True, null=True) 
     d_signal = models.CharField(max_length=1000, blank=True, null=True) 
     e_p_signal = models.CharField(max_length=1000, blank=True, null=True) 
     file_name = models.CharField(max_length=1000, blank=True, null=True) 

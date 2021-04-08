@@ -1,6 +1,20 @@
 from rest_framework import serializers 
 from patientdb.models import Patient, Signals
- 
+from rest_framework.parsers import MultiPartParser, FormParser
+
+
+class UploadSerializer(serializers.Serializer):
+    parser_classes = (MultiPartParser, FormParser,)
+    #file = serializers.FileField(use_url=False)
+    file = serializers.ListField(
+                child=serializers.FileField( max_length=100000,
+                                             allow_empty_file=False,
+                                             use_url=False )
+            )
+
+    
+
+
 class PatientSerializer(serializers.ModelSerializer):
  
     class Meta:

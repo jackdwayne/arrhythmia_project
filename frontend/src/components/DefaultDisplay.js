@@ -14,7 +14,7 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@apollo/client";
 import Chart2 from "./Chart2";
 
-var patient_number = 100;
+var patient_number = 103;
 var start_time = 0;
 var end_time = 10000;
 
@@ -23,7 +23,7 @@ const signalQuery = gql`
     patient
       @rest(
         type: "Patient"
-        path: "/?format=json&signal_record_name_id=${patient_number}&timeRange=${start_time},${end_time}"
+        path: "/?format=json&signal_record_name=${patient_number}&timeRange=${start_time},${end_time}"
         endpoint: "signal"
       ) {
       count
