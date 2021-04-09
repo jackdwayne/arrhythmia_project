@@ -15,15 +15,16 @@ import { gql } from "@apollo/client";
 import Chart2 from "./Chart2";
 import { Button } from "@material-ui/core";
 
-var patient_number = 100;
-var queryPath = "/?format=json&signal_record_name_id=".concat(patient_number.toString());
+var patient_number = 103;
+var start_time = 0;
+var end_time = 10000;
 
 const signalQuery = gql`
   query getPatient($qPath: String) {
     patient(qPath: $qPath)
       @rest(
         type: "Patient"
-        path: $qPath
+        path: "/?format=json&signal_record_name=${patient_number}&timeRange=${start_time},${end_time}"
         endpoint: "signal"
       ) {
       count
