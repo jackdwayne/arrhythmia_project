@@ -10,10 +10,10 @@ export const signalQuery = gql`
         path: "/?format=json&signal_record_name=4&timeRange=0,30"
         endpoint: "signal"
       ) {
-        count
-        next
-        previous
-        results
+      count
+      next
+      previous
+      results
     }
   }
 `;
@@ -21,11 +21,7 @@ export const signalQuery = gql`
 export const patientQuery = gql`
   query getPatient($pPath: String) {
     patients(qPath: $qPath)
-      @rest(
-        type: "Patients"
-        path: $pPath
-        endpoint: "patient"
-      ) {
+      @rest(type: "Patients", path: $pPath, endpoint: "patient") {
       count
       next
       previous
