@@ -19,9 +19,7 @@ function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
 }
 
-const rows = [createData("100", "69", "Male", "30:06", "2273")];
-
-export default function PatientTable() {
+export default function PatientTable(props) {
   const classes = useStyles();
 
   return (
@@ -32,22 +30,28 @@ export default function PatientTable() {
             <TableCell>Patient Record No.</TableCell>
             <TableCell align="right">Age</TableCell>
             <TableCell align="right">Gender</TableCell>
-            <TableCell align="right">Record Length</TableCell>
-            <TableCell align="right">Total Annotations</TableCell>
+            <TableCell align="right">Number Signal Data Points</TableCell>
+            <TableCell align="right">Record Types</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.name}>
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
-            </TableRow>
-          ))}
+          <TableRow key={props.patientID}>
+            <TableCell component="th" scope="row">
+              {props.patientID}
+            </TableCell>
+
+            {/* MIT database might not record age, saved as -1 in db*/}
+            <TableCell align="right">
+              {props.patient[0] === "-1"
+                ? "Age Not Recorded"
+                : props.patient[0]}
+            </TableCell>
+            <TableCell align="right">
+              {props.patient[1] === "M" ? "Male" : "Female"}
+            </TableCell>
+            <TableCell align="right">{props.patient[2]}</TableCell>
+            <TableCell align="right">{props.patient[3]}</TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>
