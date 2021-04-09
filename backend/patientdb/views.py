@@ -1,7 +1,8 @@
 from patientdb.models import Signals, Patient
 from django.shortcuts import get_object_or_404
-from patientdb.serializers import SignalsSerializer, PatientSerializer
+from patientdb.serializers import SignalsSerializer, PatientSerializer, UploadSerializer
 from rest_framework import viewsets
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 import django_filters
 from rest_framework import generics
@@ -15,7 +16,50 @@ from tensorflow import keras
 import tensorflow_addons as tfa
 import numpy as np
 import os
+from patRecFormatter import dataParser
+from django.core.files.storage import default_storage
+import pathlib
+import shutil
 
+
+class UploadedFileViewSet(APIView):
+
+    serializer_class = UploadSerializer
+    
+    def post(self, request):
+        
+        # serialize file data 
+        serializer = UploadSerializer(data=request.data)
+        # validate file 
+        serializer.is_valid(raise_exception=True)
+        # get file object 
+        #file = request.FILES
+        tempDir = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/'
+        os.mkdir(tempDir)
+        fileName = ""        
+        for f in request.FILES.getlist('file'):
+            fileName = f
+            fileDestination = tempDir + '/' + f._name
+
+            destination = open(fileDestination, 'wb+')
+            for chunk in f.chunks():
+                destination.write(chunk)
+            destination.close()           
+
+        #print("\nfilename: %s\n" % fileName)
+        # start patRecFormatter to parse data using wfdb library (wave form database) 
+        dataParser.start(self, tempDir, fileName)
+        
+        # delete temp directory and all of its contents 
+        '''try:
+            shutil.rmtree(tempDir)
+        except OSError as e:
+            print ("Error: %s - %s." % (e.filename, e.strerror))'''
+        
+        return Response(serializer.data)
+
+        
+    
 
 class SignalsViewSet(viewsets.ModelViewSet):
     """
