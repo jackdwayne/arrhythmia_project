@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import Box from "@material-ui/core/Box";
 import Divider from "@material-ui/core/Divider";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
@@ -14,7 +13,6 @@ import { gql } from "@apollo/client";
 import Chart2 from "./Chart2";
 import { Button, Input, MenuItem, Select } from "@material-ui/core";
 import { patientQuery } from "../graphql-logic/queries";
-
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
@@ -67,8 +65,6 @@ request.onload = function () {
 //   }
 // `;
 
-let beats = [0.214, 1.028, 1.844, 2.631, 3.419, 4.206, 5.025];
-let annotations = ["N", "N", "N", "N", "N", "N", "N"];
 // Generate pairs of timestamps and readings
 function createData(time, amount) {
   //return { time, amount };
@@ -127,8 +123,7 @@ export default function Sample() {
   //       to select the user using a drop-down
   // TODO: Need to implement a component that picks up a time range, and graph type to pick up a list of ML-based
   //       annotations
-  // TODO: Need to implement dynamic queries for patient.
-  // TODO: Update components that contain patient information (the tab, the dropdown, the update)
+  // TODO: Make selection for Patient prettier
   // TODO: Make it dynamic (aka pick up attributes from components and concat them)
 
   // Data State
@@ -155,7 +150,7 @@ export default function Sample() {
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   // State that handles queries for signals
-  // TODO: Make it dynamic
+  // TODO: Make it dynamic responsive from the user
   const [
     loadGraphs,
     {
@@ -217,12 +212,13 @@ export default function Sample() {
     setDisplayPatientNumber(event.target.value);
   };
 
+  // Handler to update graph once selection is made post-startup
   const handlePatientSelect = () => {
     setPatientNumber(displayPatientNumber);
     setDataPoint(updateGraph(sigData));
   };
 
-  // Handler to draw/update graph
+  // Handler to draw/update graph pre-startup
   const handlePatientSubmit = (displayPatientNumber) => {
     if (displayPatientNumber !== 0) {
       setPatientNumber(displayPatientNumber);
@@ -240,8 +236,6 @@ export default function Sample() {
   // handleEndChange => (event) => {
   //   setStart(event.value)
 
-  const bull = <span className={classes.bullet}>•</span>;
-
   // Render Display Component
   if (!calledSig) {
     // Startup, select patient
@@ -249,8 +243,10 @@ export default function Sample() {
       getPatientList();
       return <div>Loading...</div>;
     } else if (loadingPatients) {
+      // Waiting for patient list
       return <div>Loading...</div>;
     } else {
+      // Render selection list for pre-startup
       return (
         <div>
           <Select
@@ -272,11 +268,15 @@ export default function Sample() {
       );
     }
   } else if (calledSig && graphLoading) {
+    // Loading graph and signals
     return <div>Loading...</div>;
   } else {
     // Query made, render graph
 
+    // TODO: BUG IS HERE, need to optimize this function call/update
     let signals = updateGraph(sigData);
+
+    /* Processing patient data */
     const patientComment = patientLists.patients.results.find(
       (patient) => patient.record_name === patientNumber
     );
@@ -294,6 +294,7 @@ export default function Sample() {
       patientComment.sig_len,
       patientComment.sig_name.replace(/\[|\]|'/g, ""),
     ];
+    // Get comments about the patient
     const notes = patientComment.comments
       .split("', ")
       .filter(function (str) {

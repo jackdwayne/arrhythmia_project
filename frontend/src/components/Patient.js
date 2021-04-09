@@ -46,6 +46,11 @@ export default function PatientTable(props) {
                 ? "Age Not Recorded"
                 : props.patient[0]}
             </TableCell>
+            {
+            /* Database identify gender from comment with M being Male, 
+             * F = female. MIT DB definitely identifies gender
+             */
+            }
             <TableCell align="right">
               {props.patient[1] === "M" ? "Male" : "Female"}
             </TableCell>

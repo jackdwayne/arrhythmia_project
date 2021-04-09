@@ -7,7 +7,7 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import { useQuery, useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { patientQuery } from "../graphql-logic/queries";
 
 const useStyles = makeStyles({
@@ -76,7 +76,11 @@ export default function PatientTable() {
                         .replace(/^\s+|\s+$|'|\[|\]/g, "")
                         .split(" ")[0]}
                 </TableCell>
-                {/* Database identify gender from comment with M being Male, F = female. MIT DB definitely identifies gender*/}
+                {
+                /* Database identify gender from comment with M being Male, 
+                 * F = female. MIT DB definitely identifies gender
+                 */
+                }
                 <TableCell align="right">
                   {patient.comments
                     .replace(/^\s+|\s+$|'|\[|\]/g, "")
