@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
@@ -9,15 +9,19 @@ import Paper from "@material-ui/core/Paper";
 //import Chart from "./Chart";
 import PatientTable from "./Patient";
 import Title from "./Title";
-import { useQuery } from "@apollo/client";
+import { useQuery, useLazyQuery } from "@apollo/client";
 //import { signalQuery } from "../graphql-logic/queries";
 import { gql } from "@apollo/client";
 import Chart2 from "./Chart2";
-import { Button } from "@material-ui/core";
+import { Button, Input, MenuItem, Select } from "@material-ui/core";
 
+
+<<<<<<< HEAD
 var patient_number = 103;
 var start_time = 0;
 var end_time = 10000;
+=======
+>>>>>>> 109e4c7b9c72a10418cfca74ad0d77ae3fee5505
 
 const signalQuery = gql`
   query getPatient($qPath: String) {
@@ -34,6 +38,29 @@ const signalQuery = gql`
     }
   }
 `;
+
+const predictQuery = gql`
+  query getPrediction($pPath: String) {
+    predict(pPath: $pPath)
+      @rest(
+        type: "Patient"
+        path: $pPath
+        endpoint: "predict"
+      ) {
+        results
+      }
+  }
+`;
+
+
+
+var request = new XMLHttpRequest();
+request.open("GET", "http://127.0.0.1:8000/predict_mlii_signals/?format=json&signal_record_name=103&lead=mlii&start=0&end=1800");
+request.send();
+request.onload = function () {
+  var data = JSON.parse(request.response);
+  console.log(data[0.5]);
+}
 
 // const signalQuery = gql`
 //   query getPatient {
@@ -56,7 +83,7 @@ let annotations = ["N", "N", "N", "N", "N", "N", "N"];
 // Generate pairs of timestamps and readings
 function createData(time, amount) {
   //return { time, amount };
-  return {x: time, y: amount};
+  return { x: time, y: amount };
 }
 
 const drawerWidth = 240;
@@ -102,100 +129,197 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function updateGraph(data) {
-  let signals = data.patient.results;
-  let next = data.patient.next;
 
-  let MLIIdatapoints = [];
-  let V5datapoints = [];
-  let i = 0;
 
-  for (i; i < signals.length; i++) {
-    MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
-    V5datapoints.push(createData(signals[i].time, signals[i].v5));
-  }
-  return { ml2: MLIIdatapoints, v5: V5datapoints };
-  //return { ml2: MLIIdatapoints, v5: V5datapoints, next: data.patient.next };
-}
 
 export default function Sample() {
   const classes = useStyles();
+
+  // TODO: Need to implement a component that picks up time range so that the user can query a specific time slot.
+  //       (Currently hard-coded to pick up all data from all the time in the database)
+  // TODO: Need to implement a better component that queries the db on the possible list of patients and allow the user
+  //       to select the user using a drop-down
+  // TODO: Need to implement a component that picks up a time range, and graph type to pick up a list of ML-based
+  //       annotations
+
+
+  // States to handle request string
+  // TODO: Make it dynamic (aka pick up attributes from components and concat them)
+  const [query, setQuery] = useState("");
+  const [patient_number, setPatient_number] = useState(0);
+  const [queryPath, setQueryPath] = useState("/?format=json&signal_record_name=");
+  const [predictionPath, setPredictionPath] = useState("/?format=json&signal_record_name=103&lead=mlii&start=0&end=10")
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(0);
+
+  // Styling
+  const [mlData, setMlData] = useState(0);
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-  const { loading, error, data, fetchMore } = useQuery(signalQuery, {
-    variables: {qPath: queryPath},
+
+  // State that handles queries for signals
+  // TODO: Make it dynamic
+  const [loadGraphs, { called: calledSig, loading: graphLoading, error: graphError, data: sigData, fetchMore }] = useLazyQuery(signalQuery, {
+    variables: { qPath: queryPath.concat(String(patient_number)) },
   });
+
+  // State that handles queries for predictions on annotations from ML backend
+  const [loadPredictions, { called: calledPred, loading: predictLoading, error: predictError, data: predictData }] = useLazyQuery(predictQuery, {
+    variables: { pPath: predictionPath },
+  });
+
+  // Update graph
+  function updateGraph(data) {
+    let signals = data.patient.results;
+    console.log("In update graph");
+    console.log(data);
+    let next = data.patient.next;
+
+    let MLIIdatapoints = [];
+    let V5datapoints = [];
+    let i = 0;
+
+    for (i; i < signals.length; i++) {
+      MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
+      V5datapoints.push(createData(signals[i].time, signals[i].v5));
+    }
+    return { ml2: MLIIdatapoints, v5: V5datapoints };
+    //return { ml2: MLIIdatapoints, v5: V5datapoints, next: data.patient.next };
+  };
+
+  // Handler to set patient id
+  const handlePatientSelect = (event) => {
+    setPatient_number(event.target.value)
+  }
+
+  // Handler to draw/update graph
+  const handlePatientSubmit = () => {
+    loadGraphs()
+  }
+
+
+  //did mount or updated
+
+
+
+
   //const [next, setNext] = useState(0);
 
-
-  if (loading) return "Loading...";
-  if (error) return `Error! ${error.message}`;
-  let signals = updateGraph(data);
-  //setNext(signals.next); 
-
-  const hasNextPage = data.patient.next;
+  // handleStartChange => (event) => {
+  //     setStart(event.value)
+  // }
+  // handleEndChange => (event) => {
+  //   setStart(event.value)
 
 
-  return (
-    <Container maxWidth="lg" className={classes.container}>
-      <Grid container spacing={3}>
-        {/* Chart */}
-        <Grid item xs={12} md={10} lg={12}>
-          <Paper>
-            <Title>ML II</Title>
-            <Chart2
-              key={1}
-              data={signals.ml2}
-              //annotations={annotations}
-            />
-          </Paper>
-          {data.patient.previous && (
-            <Button
-              onClick={() => {
-                fetchMore({
-                  variables: {
-                    qPath: (data.patient.previous).slice(29),
-                  },
-                  updateQuery: (prevResult, { fetchMoreResult }) => {
-                    return fetchMoreResult
-                  },
-                });
-              }
-            }
-            >
-            Load Previous
-            </Button>
-          )}
-          {data.patient.next && (
-            <Button
-              onClick={() => {
-                fetchMore({
-                  variables: {
-                    qPath: (data.patient.next).slice(29),
-                  },
-                  updateQuery: (prevResult, { fetchMoreResult }) => {
-                    return fetchMoreResult
-                  },
-                });
-              }
-            }
-            >
-            Load Next
-            </Button>
-          )}
-          
-          <Divider />
-          <Paper>
-            <Title>V5</Title>
-            <Chart2
-              key={2}
-              data={signals.v5}
-            />
-          </Paper>
-        </Grid>
-      </Grid>
-      <PatientTable></PatientTable>
+  // Render Display Component
+  if (!calledSig) {
+    // Startup, select patient
+    // TODO: Query for patient id
 
-      <Box pt={4}></Box>
-    </Container>
-  );
+    return (
+      <div >
+        <Select
+          placeholder="Choose Patient Record"
+          onChange={handlePatientSelect}
+          autoWidth
+        >
+          <MenuItem value={103}>103</MenuItem>
+          <MenuItem value={205}>205</MenuItem>
+        </Select>
+        <button onClick={() => handlePatientSubmit()}>Submit</button>
+      </div>
+    );
+  }
+  else if (calledSig && graphLoading) {
+    return <div>Loading...</div>
+  }
+  else {
+    // Query made, render graph
+
+    //setNext(signals.next); 
+    let signals = updateGraph(sigData);
+    const hasNextPage = sigData.patient.next;
+
+    return (
+      <div>
+        <div >
+          <Select
+            placeholder="Choose Patient Record"
+            onChange={handlePatientSelect}
+            autoWidth
+          >
+            <MenuItem value={103}>103</MenuItem>
+            <MenuItem value={205}>205</MenuItem>
+          </Select>
+          <button onClick={() => handlePatientSubmit()}>Submit</button>
+        </div>
+        <Container maxWidth="lg" className={classes.container}>
+          <Grid container spacing={3}>
+            {/* Chart */}
+            <Grid item xs={12} md={10} lg={12}>
+              <Paper>
+                <Title>ML II</Title>
+                {/* <form onSubmit={handleJumpSubmit}>
+              
+              <input label="Start" onChange={setStart(this.value)}></input>
+              <
+            </form> */}
+                <Chart2
+                  key={1}
+                  data={signals.ml2}
+                //annotations={annotations}
+                />
+              </Paper>
+              {sigData.patient.previous && (
+                <Button
+                  onClick={() => {
+                    fetchMore({
+                      variables: {
+                        qPath: (sigData.patient.previous).slice(29),
+                      },
+                      updateQuery: (prevResult, { fetchMoreResult }) => {
+                        return fetchMoreResult
+                      },
+                    });
+                  }
+                  }
+                >
+                  Load Previous
+                </Button>
+              )}
+              {sigData.patient.next && (
+                <Button
+                  onClick={() => {
+                    fetchMore({
+                      variables: {
+                        qPath: (sigData.patient.next).slice(29),
+                      },
+                      updateQuery: (prevResult, { fetchMoreResult }) => {
+                        return fetchMoreResult
+                      },
+                    });
+                  }
+                  }
+                >
+                  Load Next
+                </Button>
+              )}
+
+              <Divider />
+              <Paper>
+                <Title>V5</Title>
+                <Chart2
+                  key={2}
+                  data={signals.v5}
+                />
+              </Paper>
+            </Grid>
+          </Grid>
+          <PatientTable></PatientTable>
+
+          <Box pt={4}></Box>
+        </Container>
+      </div>
+    );
+  }
 }
