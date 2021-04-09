@@ -17,3 +17,19 @@ export const signalQuery = gql`
     }
   }
 `;
+
+export const patientQuery = gql`
+  query getPatient($pPath: String) {
+    patients(qPath: $qPath)
+      @rest(
+        type: "Patients"
+        path: $pPath
+        endpoint: "patient"
+      ) {
+      count
+      next
+      previous
+      results
+    }
+  }
+`;
