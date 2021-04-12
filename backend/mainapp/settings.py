@@ -24,10 +24,12 @@ import os
 SECRET_KEY = 'o^c7k%ovo3#_$0jf80qsfq!+9e$m=muh5&y%ekg+rm)4h(*9hd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]', 'http://localhost:3000']
+CORS_ALLOW_HEADERS = ('multipart/form-data')
 
+CORS_ORIGIN_ALLOW_ALL = False
 
 # Application definition
 
@@ -42,7 +44,7 @@ INSTALLED_APPS = [
     'patientdb',
     'debug_toolbar',
     'django_filters',
-    'corsheaders'
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -138,10 +140,12 @@ REST_FRAMEWORK = {
 }
 
 
-
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://localhost:8000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000"
+
     # your React App domain]
 ]
 
