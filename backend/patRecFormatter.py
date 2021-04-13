@@ -153,8 +153,7 @@ class dataParser(object):
 
 
     def insertInDatabase(self, filePath, recordNum):
-        #dbConn = psycopg2.connect(host="localhost", port="5432", dbname="patient_db", user="postgres", password="postgres")
-        dbConn = psycopg2.connect(host="localhost", port="5432", dbname="patientdb", user="jacksonoah", password="Tricky123!")
+        dbConn = psycopg2.connect(host="localhost", port="5432", dbname="patient_db", user="postgres", password="postgres")
 
         dbCursor = dbConn.cursor()
 
