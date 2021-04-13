@@ -12,7 +12,7 @@ import { RestLink } from "apollo-link-rest";
 const restLink = new RestLink({
   endpoints: {
     signal: "http://localhost:8000/signals",
-    patient: "http://localhost:8000/patient",
+    patient: "http://localhost:8000/patients",
     predict: "http://localhost:8000/predict_mlii_signals",
   },
 });
