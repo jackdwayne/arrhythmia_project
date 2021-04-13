@@ -35,21 +35,21 @@ class UploadedFileViewSet(APIView):
         # get file object 
         #file = request.FILES
         tempDir = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/'
-        os.mkdir(tempDir)
+        #os.mkdir(tempDir)
         fileName = ""        
         for f in request.FILES.getlist('file'):
             fileName = f
             fileDestination = tempDir + '/' + f._name
 
-            destination = open(fileDestination, 'wb+')
+            '''destination = open(fileDestination, 'wb+')
             for chunk in f.chunks():
                 destination.write(chunk)
-            destination.close()           
-
+            destination.close()         '''  
+        
         #print("\nfilename: %s\n" % fileName)
         # start patRecFormatter to parse data using wfdb library (wave form database) 
         dataParser.start(self, tempDir, fileName)
-        
+        #dataParser.insertTry2(self)
         # delete temp directory and all of its contents 
         '''try:
             shutil.rmtree(tempDir)

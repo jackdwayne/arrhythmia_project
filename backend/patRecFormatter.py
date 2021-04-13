@@ -18,7 +18,70 @@ from psycopg2.extensions import register_adapter, AsIs
 
 class dataParser(object):
 
-    def addapt_numpy_array(numpy_array):
+    def insertTry2(self, recordNum, filePath):
+        #dbHost = "localhost" # either "localhost", a domain name, or an IP address.
+        #dbPort = "5432" # default postgres port
+        #db_Name = "patientdb"
+        #dbUser = "jacksonoah"
+        #dbPassword = "Tricky123!"
+        dbConn = psycopg2.connect(host="localhost", port="5432", dbname="patientdb", user="jacksonoah", password="Tricky123!")
+        dbCursor = dbConn.cursor()
+
+        attrFile = filePath + "All_Attributes_" + recordNum + ".csv"
+        signalFile = filePath + "TimeData_" + recordNum + ".csv"
+        print("\nsignalFile: %s\nattrFile: %s\n" % (attrFile, signalFile))
+        patientAttributes = ["record_name", "n_sig", "fs", "counter_freq", "base_counter", "sig_len", "base_time", "base_date",
+                    "comments", "sig_name", "d_signal", "e_p_signal", "file_name", "fmt", "samps_per_frame",
+                    "skew", "byte_offset", "adc_gain", "baseline", "units", "adc_res", "adc_zero", "init_value",
+                    "checksum", "block_size", "has_annotations"]
+       
+        signalAttributes = ["time", "mlii", "v5", "signal_record_name_id", "annotation"]
+
+        # Trap errors for opening the file
+        try:
+            attrFileData = open(attrFile, 'r')
+        except psycopg2.Error as e:
+            #t_message = "Database error: " + e + "/n open() text file: " + filePath
+            #return print("error_page.html", t_message = t_message)
+            print("\nerrorrrkjf")
+            return 
+
+        # Trap errors for copying the array to our database
+        try:
+            print("\nshould be inserting...............\n")
+            dbCursor.copy_from(attrFileData, "patientdb_patient", columns=patientAttributes, sep="|")
+            dbConn.commit()
+        except psycopg2.Error as e:
+            print("\nerrorrrkjf inserting: %s\n" % e)
+            return
+
+
+        # Trap errors for opening the file
+        try:
+            signalFileData = open(signalFile, 'r')
+        except psycopg2.Error as e:
+            #t_message = "Database error: " + e + "/n open() text file: " + filePath
+            #return print("error_page.html", t_message = t_message)
+            print("\nerrorrrkjf")
+            return 
+
+        # Trap errors for copying the array to our database
+        try:
+            print("\nshould be inserting...............\n")
+            dbCursor.copy_from(signalFileData, "patientdb_signals", columns=signalAttributes, sep="|")
+            dbConn.commit()
+        except psycopg2.Error as e:
+            print("\nerrorrrkjf inserting: %s\n" % e)
+            return
+
+        # It got this far: Success!
+
+        # Clean up by closing the database cursor and connection
+        dbCursor.close()
+        dbConn.close()
+
+        
+    def addapt_numpy_array(self, numpy_array):
         return AsIs(tuple(numpy_array))
 
     register_adapter(np.ndarray, addapt_numpy_array)
@@ -30,7 +93,8 @@ class dataParser(object):
         fileNameNoExtension = file._name.split('.')[0]  
         #print("\nfileNameNoExtension: %s\n" % fileNameNoExtension)
         #print("\nIN DATAPARSER tempDir: %s\nfile path is: %s\nfileNameNoExtension: %s\n" % (tempDir, filePath, fileNameNoExtension))
-        dataParser.printData(self, fileNameNoExtension, tempDir)
+        #dataParser.printData(self, fileNameNoExtension, tempDir)
+        dataParser.insertTry2(self, fileNameNoExtension, tempDir)
 
     # TODO: Parse MIT sample data
     def printData(self, fileNameNoExtension, filePath):
@@ -68,57 +132,57 @@ class dataParser(object):
                     "checksum", "block_size", "has_annotations"]
   
         # initialize dictionary
-        patientAttributeDict = {}
+        #patientAttributeDict = {}
         
         # iterating through the elements of list
-        for i in patientColumnNames:
-            patientAttributeDict[i] = None
+        #for i in patientColumnNames:
+        #    patientAttributeDict[i] = None
             
-        print(patientAttributeDict)
+        #print(patientAttributeDict)
         # iterate through attributes
         for attr in attributes:
             # example of selecting specific data segment from record
             # if attr == "checksum":
             if attr == "record_name":
                 recordValue = getattr(record, attr)
-                #formatted_patient_DF['record_name'].values[0] = getattr(record, attr)
-                patientAttributeDict['record_name'] = getattr(record, attr)
+                formatted_patient_DF['record_name'].values[0] = getattr(record, attr)
+                #patientAttributeDict['record_name'] = getattr(record, attr)
 
             if attr == "n_sig":
-                #formatted_patient_DF['n_sig'].values[0] = getattr(record, attr)
-                patientAttributeDict['n_sig'] = getattr(record, attr)
+                formatted_patient_DF['n_sig'].values[0] = getattr(record, attr)
+                #patientAttributeDict['n_sig'] = getattr(record, attr)
                 
             if attr == "fs":
-                #formatted_patient_DF['fs'].values[0] = getattr(record, attr)
-                patientAttributeDict['fs'] = getattr(record, attr)
+                formatted_patient_DF['fs'].values[0] = getattr(record, attr)
+                #patientAttributeDict['fs'] = getattr(record, attr)
                 
             if attr == "counter_freq":
-                #formatted_patient_DF['counter_freq'].values[0] = getattr(record, attr)
-                patientAttributeDict['counter_freq'] = getattr(record, attr)
+                formatted_patient_DF['counter_freq'].values[0] = getattr(record, attr)
+                #patientAttributeDict['counter_freq'] = getattr(record, attr)
 
             if attr == "base_counter":
-                #formatted_patient_DF['base_counter'].values[0] = getattr(record, attr)
-                patientAttributeDict['base_counter'] = getattr(record, attr)
+                formatted_patient_DF['base_counter'].values[0] = getattr(record, attr)
+                #patientAttributeDict['base_counter'] = getattr(record, attr)
 
             if attr == "sig_len":
-                #formatted_patient_DF['sig_len'].values[0] = getattr(record, attr)
-                patientAttributeDict['sig_len'] = getattr(record, attr)
+                formatted_patient_DF['sig_len'].values[0] = getattr(record, attr)
+                #patientAttributeDict['sig_len'] = getattr(record, attr)
 
             if attr == "base_time":
-                #formatted_patient_DF['base_time'].values[0] = getattr(record, attr)
-                patientAttributeDict['base_time'] = getattr(record, attr)
+                formatted_patient_DF['base_time'].values[0] = getattr(record, attr)
+                #patientAttributeDict['base_time'] = getattr(record, attr)
 
             if attr == "base_date":
-                #formatted_patient_DF['base_date'].values[0] = getattr(record, attr)
-                patientAttributeDict['base_date'] = getattr(record, attr)
+                formatted_patient_DF['base_date'].values[0] = getattr(record, attr)
+                #patientAttributeDict['base_date'] = getattr(record, attr)
 
             if attr == "comments":
-                #formatted_patient_DF['comments'].values[0] = getattr(record, attr)
-                patientAttributeDict['fs'] = getattr(record, attr)
+                formatted_patient_DF['comments'].values[0] = getattr(record, attr)
+                #patientAttributeDict['fs'] = getattr(record, attr)
 
             if attr == "sig_name":
-                #formatted_patient_DF['sig_name'].values[0] = getattr(record, attr)
-                patientAttributeDict['sig_name'] = getattr(record, attr)
+                formatted_patient_DF['sig_name'].values[0] = getattr(record, attr)
+                #patientAttributeDict['sig_name'] = getattr(record, attr)
                 signal_name = getattr(record, attr)
 
             if attr == "p_signal":
@@ -127,64 +191,64 @@ class dataParser(object):
                 p_signal_time = getattr(record, attr)
 
             if attr == "d_signal":
-                #formatted_patient_DF['d_signal'].values[0] = getattr(record, attr)
-                patientAttributeDict['d_signal'] = getattr(record, attr)
+                formatted_patient_DF['d_signal'].values[0] = getattr(record, attr)
+                #patientAttributeDict['d_signal'] = getattr(record, attr)
 
             if attr == "e_p_signal":
-                #formatted_patient_DF['e_p_signal'].values[0] = getattr(record, attr)
-                patientAttributeDict['e_p_signal'] = getattr(record, attr)
+                formatted_patient_DF['e_p_signal'].values[0] = getattr(record, attr)
+                #patientAttributeDict['e_p_signal'] = getattr(record, attr)
 
             if attr == "file_name":
-                #formatted_patient_DF['file_name'].values[0] = getattr(record, attr)
-                patientAttributeDict['file_name'] = getattr(record, attr)
+                formatted_patient_DF['file_name'].values[0] = getattr(record, attr)
+                #patientAttributeDict['file_name'] = getattr(record, attr)
 
             if attr == "fmt":
-                #formatted_patient_DF['fmt'].values[0] = getattr(record, attr)
-                patientAttributeDict['fmt'] = getattr(record, attr)
+                formatted_patient_DF['fmt'].values[0] = getattr(record, attr)
+                #patientAttributeDict['fmt'] = getattr(record, attr)
 
             if attr == "samps_per_frame":
-                #formatted_patient_DF['samps_per_frame'].values[0] = getattr(record, attr)
-                patientAttributeDict['samps_per_frame'] = getattr(record, attr)
+                formatted_patient_DF['samps_per_frame'].values[0] = getattr(record, attr)
+                #patientAttributeDict['samps_per_frame'] = getattr(record, attr)
 
             if attr == "skew":
-                #formatted_patient_DF['skew'].values[0] = getattr(record, attr)
-                patientAttributeDict['skew'] = getattr(record, attr)
+                formatted_patient_DF['skew'].values[0] = getattr(record, attr)
+                #patientAttributeDict['skew'] = getattr(record, attr)
 
             if attr == "byte_offset":
-                #formatted_patient_DF['byte_offset'].values[0] = getattr(record, attr)
-                patientAttributeDict['byte_offset'] = getattr(record, attr)
+                formatted_patient_DF['byte_offset'].values[0] = getattr(record, attr)
+                #patientAttributeDict['byte_offset'] = getattr(record, attr)
 
             if attr == "adc_gain":
-                #formatted_patient_DF['adc_gain'].values[0] = getattr(record, attr)
-                patientAttributeDict['adc_gain'] = getattr(record, attr)
+                formatted_patient_DF['adc_gain'].values[0] = getattr(record, attr)
+                #patientAttributeDict['adc_gain'] = getattr(record, attr)
 
             if attr == "baseline":
-                #formatted_patient_DF['baseline'].values[0] = getattr(record, attr)
-                patientAttributeDict['baseline'] = getattr(record, attr)
+                formatted_patient_DF['baseline'].values[0] = getattr(record, attr)
+                #patientAttributeDict['baseline'] = getattr(record, attr)
 
             if attr == "units":
-                #formatted_patient_DF['units'].values[0] = getattr(record, attr)
-                patientAttributeDict['units'] = getattr(record, attr)
+                formatted_patient_DF['units'].values[0] = getattr(record, attr)
+                #patientAttributeDict['units'] = getattr(record, attr)
 
             if attr == "adc_res":
-                #formatted_patient_DF['adc_res'].values[0] = getattr(record, attr)
-                patientAttributeDict['adc_res'] = getattr(record, attr)
+                formatted_patient_DF['adc_res'].values[0] = getattr(record, attr)
+                #patientAttributeDict['adc_res'] = getattr(record, attr)
 
             if attr == "adc_zero":
-                #formatted_patient_DF['adc_zero'].values[0] = getattr(record, attr)
-                patientAttributeDict['adc_zero'] = getattr(record, attr)
+                formatted_patient_DF['adc_zero'].values[0] = getattr(record, attr)
+                #patientAttributeDict['adc_zero'] = getattr(record, attr)
 
             if attr == "init_value":
-                #formatted_patient_DF['init_value'].values[0] = getattr(record, attr)
-                patientAttributeDict['init_value'] = getattr(record, attr)
+                formatted_patient_DF['init_value'].values[0] = getattr(record, attr)
+                #patientAttributeDict['init_value'] = getattr(record, attr)
 
             if attr == "checksum":
-                #formatted_patient_DF['checksum'].values[0] = getattr(record, attr)
-                patientAttributeDict['checksum'] = getattr(record, attr)
+                formatted_patient_DF['checksum'].values[0] = getattr(record, attr)
+                #patientAttributeDict['checksum'] = getattr(record, attr)
 
             if attr == "block_size":
-                #formatted_patient_DF['block_size'].values[0] = getattr(record, attr)
-                patientAttributeDict['block_size'] = getattr(record, attr)
+                formatted_patient_DF['block_size'].values[0] = getattr(record, attr)
+                #patientAttributeDict['block_size'] = getattr(record, attr)
 
             # print each attribute name and its associated value for the record
             # print("\n%s: %s" % (attr, getattr(record, attr)))
@@ -193,41 +257,76 @@ class dataParser(object):
         patAttrFilePath = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/' + 'All_Attributes_' + recordValue + '.csv'
 
         # write patient attribute data to csv
-        with open(patAttrFilePath, 'w') as f:  # You will need 'wb' mode in Python 2.x
+        '''with open(patAttrFilePath, 'w') as f:  # You will need 'wb' mode in Python 2.x
             w = csv.DictWriter(f, patientAttributeDict.keys())
             #w.writeheader()
             w.writerow(patientAttributeDict)
-
+        '''
         timeDF = dataParser.extractTimeData(self, p_signal_time, signal_name, recordValue)
         dataParser.extractAnnotations(self, filePath, timeDF, fileNameNoExtension)
-        #dataParser.writePatientCSV(self, patientAttributeDict, recordValue, 'All_Attributes_')
-        #dataParser.inseretInDatabase(self, timeDF, patientAttributeDict, filePath, fileNameNoExtension)
+        dataParser.writePatientCSV(self, formatted_patient_DF, recordValue, 'All_Attributes_')
+        dataParser.insertInDatabase(self, filePath, fileNameNoExtension)
+
+    def insertInDatabase(self, filePath, recordNum):
+        #dbHost = "localhost" # either "localhost", a domain name, or an IP address.
+        #dbPort = "5432" # default postgres port
+        #db_Name = "patientdb"
+        #dbUser = "jacksonoah"
+        #dbPassword = "Tricky123!"
+        dbConn = psycopg2.connect(host="localhost", port="5432", dbname="patientdb", user="jacksonoah", password="Tricky123")
+        dbCursor = dbConn.cursor()
+
+        attrFile = filePath + "All_Attributes_" + recordNum + ".csv"
+        signalFile = filePath + "TimeData_" + recordNum + ".csv"
+
+        patientAttributes = ["record_name", "n_sig", "fs", "counter_freq", "base_counter", "sig_len", "base_time", "base_date",
+                    "comments", "sig_name", "d_signal", "e_p_signal", "file_name", "fmt", "samps_per_frame",
+                    "skew", "byte_offset", "adc_gain", "baseline", "units", "adc_res", "adc_zero", "init_value",
+                    "checksum", "block_size", "has_annotations"]
+       
+        # Trap errors for opening the file
+        try:
+            attrFileData = open(attrFile, 'r')
+        except psycopg2.Error as e:
+            #t_message = "Database error: " + e + "/n open() text file: " + filePath
+            #return print("error_page.html", t_message = t_message)
+            print("\nerrorrrkjf")
+            return 
+
+        # Trap errors for copying the array to our database
+        try:
+            print("\nshould be inserting...............\n")
+            dbCursor.copy_from(attrFileData, "patientdb_patient", columns=patientAttributes, sep="|")
+            dbConn.commit()
+        except psycopg2.Error as e:
+            print("\nerrorrrkjf inserting: %s\n" % e)
+            return
 
 
-    def inseretInDatabase(self, timeDF, patientAttributeDict, filePath, fileNameNoExtension):
-        
-        engine = create_engine('postgresql+psycopg2://jacksonoah:Tricky123!@localhost:5432/patientdb')
-        #patientTableTypes = dict(zip(formatted_patient_DF.columns.tolist(),(types.VARCHAR(length=1000), types.Integer(), types.Float()) ))
-        signalsTableTypes = dict(zip(timeDF.columns.tolist(),(types.VARCHAR(length=1000), types.Integer(), types.Float()) ))
-        #test_types = dict(zip(testdf.columns.tolist(),(types.VARCHAR(length=20), types.Integer(), types.Float()) ))
-        conn = psycopg2.connect("host='localhost' port='5432' dbname='patientdb' user='jacksonoah' password='Tricky123!'")
-        cur = conn.cursor()
-        columns = patientAttributeDict.keys()
-        values = [patientAttributeDict[column] for column in columns]
+        # Trap errors for opening the file
+        try:
+            signalFileData = open(signalFile, 'r')
+        except psycopg2.Error as e:
+            #t_message = "Database error: " + e + "/n open() text file: " + filePath
+            #return print("error_page.html", t_message = t_message)
+            print("\nerrorrrkjf")
+            return 
 
-        insert_statement = 'insert or create patientdb_patient (%s) values %s'
+        # Trap errors for copying the array to our database
+        try:
+            print("\nshould be inserting...............\n")
+            dbCursor.copy_from(signalFile, "patientdb_signals", columns=patientAttributes, sep="|")
+            dbConn.commit()
+        except psycopg2.Error as e:
+            print("\nerrorrrkjf inserting: %s\n" % e)
+            return
 
-        # cursor.execute(insert_statement, (AsIs(','.join(columns)), tuple(values)))
-        cur.execute(insert_statement, (AsIs(','.join(columns)), tuple(values)))    
-        
-        timeDF.to_sql(name='patientdb_signals', con=engine, dtype=signalsTableTypes, if_exists='append', index=False)
+        # It got this far: Success!
 
-        #formatted_patient_DF.to_sql(name='patientdb_patient', dtype=patientTableTypes, con=engine, if_exists='append', index=False)
-        #timeDF.to_sql(name='patientdb_signals', con=engine, dtype=signalsTableTypes, if_exists='append', index=False)
-        #attributeFile = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/' + 'All_Attributes_' + fileNameNoExtension + '.csv'
-        #signalFile = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/' + filePath + '/TimeData_' + fileNameNoExtension + '.csv'
+        # Clean up by closing the database cursor and connection
+        dbCursor.close()
+        dbConn.close()
 
-        
 
 
     def extractAnnotations(self, filePath, timeDF, recordNumber):
@@ -314,7 +413,7 @@ class dataParser(object):
         #patientData_DF = patientData_DF.replace(r'^\s*$', np.nan, regex=True)
 
         # write formatted patient data to new csv file
-        patientData_DF.to_csv(ptFormattedFile, sep=',', encoding='utf-8', index=False, header=False, quoting=0)
+        patientData_DF.to_csv(ptFormattedFile, sep='|', encoding='utf-8', index=False, header=False, quoting=0)
 
 
     

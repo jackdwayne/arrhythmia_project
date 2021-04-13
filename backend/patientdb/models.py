@@ -29,17 +29,17 @@ class Patient(models.Model):
     init_value = models.CharField(max_length=1000, blank=True, null=True)       
     checksum = models.CharField(max_length=1000, blank=True, null=True) 
     block_size = models.CharField(max_length=1000, blank=True, null=True)
-    has_annotations = models.BooleanField(default=False, blank=True, null=True)
+    has_annotations = models.CharField(max_length=1000, blank=True, null=True)
     def __int__(self):
         return self.record_name
 
 class Signals(models.Model):
     signal_record_name = models.ForeignKey(Patient, related_name='signal_record_name', on_delete=models.CASCADE)
-    time = models.FloatField()
+    time = models.CharField(max_length=1000, blank=True, null=True)
     # TODO: Update models to dynamically pick different types of lead
     #       Requires update to the database model though, which hasn't been made as of 3/30
-    mlii = models.FloatField()
-    v5 = models.FloatField()
+    mlii = models.CharField(max_length=1000, blank=True, null=True)
+    v5 = models.CharField(max_length=1000, blank=True, null=True)
     annotation = models.CharField(max_length=10, blank=True, null=True)
     def __int__(self):
         return self.id

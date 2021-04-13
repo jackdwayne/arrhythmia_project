@@ -1,6 +1,7 @@
 import React from "react";
-import { Component } from "react";
-//import axios from "axios"
+import { Component, ProgressBar } from "react";
+import axios from "axios"
+import { blue } from "@material-ui/core/colors";
 
 
 export class AddUser extends Component{
@@ -65,9 +66,11 @@ export class AddUser extends Component{
   
   render(){
     return(
+     
       <div className="AddUser">
-        <input onChange={this.fileInputHandler} type="file" multiple="multiple" name="patientRecord"/>
-        <button onClick={this.fileInputButton}>Submit</button>
+        
+        <input  style={{ paddingTop:"0px", cursor:"pointer", border:"1px", width: "50%", background:"#add8e6", height:"250px", marginBottom:"400px"}} onChange={this.fileInputHandler} type="file" multiple="multiple" name="patientRecord"/>
+        <button style={{ paddingTop:"0px", cursor:"pointer", border:"1px",  width: "50%", background:"#add8e6", height:"250px", marginBottom:"400px"}} onClick={this.fileInputButton}>Submit</button>
       </div>
     );
   }
