@@ -314,7 +314,5 @@ class dataParser(object):
         #patientData_DF = patientData_DF.replace(r'^\s*$', np.nan, regex=True)
 
         # write formatted patient data to new csv file
-        patientData_DF.to_csv(ptFormattedFile, sep=',', encoding='utf-8', index=False, header=False, quoting=0)
-
-
+        patientData_DF.to_csv(ptFormattedFile, sep='|', encoding='utf-8', index=False, header=False, quoting=0)
     
