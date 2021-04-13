@@ -20,6 +20,7 @@ class Chart2 extends Component {
               enabled: true,
               snapToDataPoint: true,
             },
+            stripLines: this.props.annotations
           },
           axisY: {
             minimum: -1,
@@ -36,8 +37,8 @@ class Chart2 extends Component {
               dataPoints: this.props.data,
             },
             {
-              type: "line",
-              dataPoints: [],
+              type: "scatter",
+              dataPoints: this.props.predictData,
             },
           ],
         },
@@ -45,7 +46,7 @@ class Chart2 extends Component {
       rangeSelector: {
         inputFields: {
           startValue: this.props.data[0].time,
-          endValue: this.props.data[10].time,
+          endValue: this.props.data[1800].time,
           valueFormatString: "###0",
         },
 
