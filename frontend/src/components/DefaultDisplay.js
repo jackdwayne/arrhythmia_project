@@ -38,37 +38,14 @@ const predictQuery = gql`
   }
 `;
 
-var request = new XMLHttpRequest();
-request.open(
-  "GET",
-  "http://127.0.0.1:8000/predict_mlii_signals/?format=json&signal_record_name=103&lead=mlii&start=0&end=1800"
-);
-request.send();
-request.onload = function () {
-  var data = JSON.parse(request.response);
-  console.log(data[0.5]);
-};
-
-// const signalQuery = gql`
-//   query getPatient {
-//     patient
-//       @rest(
-//         type: "Patient"
-//         path: "/?format=json&signal_record_name_id=${patient_number}&timeRange=${start_time},${end_time}"
-//         endpoint: "signal"
-//       ) {
-//       count
-//       next
-//       previous
-//       results
-//     }
-//   }
-// `;
-
 // Generate pairs of timestamps and readings
 function createData(time, amount) {
   //return { time, amount };
   return { x: time, y: amount };
+}
+
+function createAnnotation(time, label) {
+  return { value: time, label: label };
 }
 
 const drawerWidth = 240;
@@ -139,7 +116,7 @@ export default function Sample() {
     "/?format=json&signal_record_name="
   );
   const [predictionPath, setPredictionPath] = useState(
-    "/?format=json&signal_record_name=103&lead=mlii&start=0&end=10"
+    "/?format=json&signal_record_name="
   );
   const [patientListPath, setPatientListPath] = useState("/?format=json");
   const [start, setStart] = useState(0);
@@ -166,15 +143,28 @@ export default function Sample() {
 
   // State that handles queries for predictions on annotations from ML backend
   const [
-    loadPredictions,
+    ML2loadPredictions,
     {
-      called: calledPred,
-      loading: predictLoading,
-      error: predictError,
-      data: predictData,
+      called: ML2calledPred,
+      loading: ML2predictLoading,
+      error: ML2predictError,
+      data: ML2predictData,
     },
   ] = useLazyQuery(predictQuery, {
-    variables: { pPath: predictionPath },
+    variables: { pPath: predictionPath.concat(String(displayPatientNumber)).concat("&lead=mlii&start=0&end=1805") },
+  });
+
+  // State that handles queries for predictions on annotations from ML backend
+  const [
+    V5loadPredictions,
+    {
+      called: V5calledPred,
+      loading: V5predictLoading,
+      error: V5predictError,
+      data: V5predictData,
+    },
+  ] = useLazyQuery(predictQuery, {
+    variables: { pPath: predictionPath.concat(String(displayPatientNumber)).concat("&lead=v5&start=0&end=1805") },
   });
 
   // State that handles queries for list of patients
@@ -191,10 +181,6 @@ export default function Sample() {
   // Update graph
   function updateGraph(data) {
     let signals = data.patient.results;
-    console.log("In update graph");
-    console.log(data);
-    let next = data.patient.next;
-
     let MLIIdatapoints = [];
     let V5datapoints = [];
     let i = 0;
@@ -205,6 +191,37 @@ export default function Sample() {
     }
     return { ml2: MLIIdatapoints, v5: V5datapoints };
     //return { ml2: MLIIdatapoints, v5: V5datapoints, next: data.patient.next };
+  }
+
+  function updatePredictions(sigData) {
+    let signals = sigData.patient.results;
+    let start = signals[0].time;
+    let end = Math.ceil(signals[signals.length - 1].time);
+    let MLIIannotations = [];
+    let V5annotations = [];
+    let i = 0.5;
+
+    for (i; i < (end - start); i++) {
+      MLIIannotations.push(createData(signals[(i * 360)].time, signals[(i * 360)].mlii));
+      V5annotations.push(createData(signals[(i * 360)].time, signals[(i * 360)].v5));
+    }
+    return { ml2: MLIIannotations, v5: V5annotations };
+  }
+
+  function updateAnnotations(sigData, ML2predictions, V5predictions) {
+    let signals = sigData.patient.results;
+    let start = signals[0].time;
+    let end = Math.ceil(signals[signals.length - 1].time);
+    let MLIIannotations = [];
+    let V5annotations = [];
+    let i = start + 0.5;
+    console.log("start: " + start + " end: " + end);
+
+    for (i; i < end; i++) {
+      MLIIannotations.push(createAnnotation(i, ML2predictions.predict.results[i]));
+      V5annotations.push(createAnnotation(i, V5predictions.predict.results[i]));
+    }
+    return { ml2: MLIIannotations , v5: V5annotations};
   }
 
   // Handler to set patient id
@@ -223,6 +240,8 @@ export default function Sample() {
     if (displayPatientNumber !== 0) {
       setPatientNumber(displayPatientNumber);
       loadGraphs();
+      ML2loadPredictions();
+      V5loadPredictions();
     }
   };
 
@@ -267,7 +286,7 @@ export default function Sample() {
         </div>
       );
     }
-  } else if (calledSig && graphLoading) {
+  } else if (calledSig && (graphLoading || ML2predictLoading || V5predictLoading)) {
     // Loading graph and signals
     return <div>Loading...</div>;
   } else {
@@ -275,6 +294,11 @@ export default function Sample() {
 
     // TODO: BUG IS HERE, need to optimize this function call/update
     let signals = updateGraph(sigData);
+    let predictions = updatePredictions(sigData);
+    let annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+    //console.log(predictData.predict.results[0.5]);
+    
+    console.log(ML2predictData.predict.results);
 
     /* Processing patient data */
     const patientComment = patientLists.patients.results.find(
@@ -335,7 +359,7 @@ export default function Sample() {
                 <Chart2
                   key={1}
                   data={signals.ml2}
-                  //annotations={annotations}
+                  annotations={annotations.ml2}
                 />
               </Paper>
               {sigData.patient.previous && (
@@ -349,6 +373,8 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
+                    predictions = updatePredictions(sigData);
+                    annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
                   }}
                 >
                   Load Previous
@@ -365,6 +391,8 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
+                    predictions = updatePredictions(sigData);
+                    annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
                   }}
                 >
                   Load Next
@@ -374,7 +402,11 @@ export default function Sample() {
               <Divider />
               <Paper>
                 <Title>V5</Title>
-                <Chart2 key={2} data={signals.v5} />
+                <Chart2 
+                  key={2}
+                  data={signals.v5} 
+                  annotations={annotations.v5}
+                  />
               </Paper>
             </Grid>
             <Grid item xs={12}>
