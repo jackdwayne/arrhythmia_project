@@ -28,7 +28,7 @@ class Patient(models.Model):
     init_value = models.CharField(max_length=1000, blank=True, null=True)       
     checksum = models.CharField(max_length=1000, blank=True, null=True) 
     block_size = models.CharField(max_length=1000, blank=True, null=True)
-    has_annotations = models.BooleanField(default=False, blank=True, null=True)
+    has_annotations = models.CharField(max_length=1000, blank=True, null=True)
     def __int__(self):
         return self.record_name
 
