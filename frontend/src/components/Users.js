@@ -79,7 +79,7 @@ export class AddUser extends Component{
         <h3 style={{paddingTop:"50px"}}>
         The MIT database can be located here: https://physionet.org/content/mitdb/1.0.0/
         </h3>
-        <h4 style={{display:"flex", width:"75%", paddingTop:"50px", margin:"0 auto", textAlign:"center"}}>
+        <h4 style={{ lineHeight:"40px", width:"75%", paddingTop:"50px", margin:"0 auto", textAlign:"center"}}>
           Upload the 4 files for each patient. Specifically the files with the extensions .atr, .hea, .xws, .dat.
 
           For example, if you want to insert patient 100, upload the following 4 files: 
@@ -91,9 +91,9 @@ export class AddUser extends Component{
 
         </h4>
         <div style={{paddingTop:"100px", paddingBottom:"150px"}}>
-          <input  style={{ width:"25%", margin:"0 auto"}} onChange={this.fileInputHandler} type="file" multiple="multiple" name="patientRecord"/>
+          <input   style={{ width:"25%", margin:"0 auto"}} onChange={this.fileInputHandler} type="file" multiple="multiple" name="patientRecord"/>
           
-          <button style={{width:"25%", margin:"0 auto", align:"center"}} onClick={this.fileInputButton}>Insert Data Into Database</button>
+          <button style={{width:"25%", margin:"0 auto", align:"center"}} onClick={this.fileInputButton}>Insert Into Database</button>
         </div>
        
       </div>
