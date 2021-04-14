@@ -86,6 +86,7 @@ export default function Sample() {
 
   // Data State
   const [dataPoint, setDataPoint] = useState({});
+  const [predictedAnnotation, setPredictedAnnotation] = useState({});
 
   // Selection states
   const [displayPatientNumber, setDisplayPatientNumber] = useState("");
@@ -183,27 +184,6 @@ export default function Sample() {
     return { ml2: MLIIdatapoints, v5: V5datapoints };
   }
 
-  function updatePredictions(sigData) {
-    let signals = sigData.patient.results;
-    if (start == 0 && end == 0) {
-      start = signals[0].time;
-      let end = Math.ceil(signals[signals.length - 1].time);
-    }
-    let MLIIannotations = [];
-    let V5annotations = [];
-    let i = 0.5;
-
-    for (i; i < end - start; i++) {
-      MLIIannotations.push(
-        createData(signals[i * 360].time, signals[i * 360].mlii)
-      );
-      V5annotations.push(
-        createData(signals[i * 360].time, signals[i * 360].v5)
-      );
-    }
-    return { ml2: MLIIannotations, v5: V5annotations };
-  }
-
   function updateAnnotations(sigData, ML2predictions, V5predictions) {
     let signals = sigData.patient.results;
     if (!start && !end) {
@@ -237,12 +217,12 @@ export default function Sample() {
 
   // Handler to draw/update graph pre-startup
   const handlePatientSubmit = (displayPatientNumber) => {
-    if (displayPatientNumber !== 0) {
+    if (displayPatientNumber !== "") {
       setPatientNumber(displayPatientNumber);
       setDataPoint({});
       loadGraphs();
-      // ML2loadPredictions();
-      // V5loadPredictions();
+      ML2loadPredictions();
+      V5loadPredictions();
     }
   };
 
@@ -283,6 +263,7 @@ export default function Sample() {
       // Render selection list for pre-startup
       return (
         <div>
+          <p>Select Patient:</p>
           <Select
             placeholder="Choose Patient Record"
             onChange={handleDisplayPatientSelect}
@@ -302,9 +283,7 @@ export default function Sample() {
         </div>
       );
     }
-  } else if (
-    graphLoading || ML2predictLoading || V5predictLoading
-  ) {
+  } else if (graphLoading || ML2predictLoading || V5predictLoading) {
     // Loading graph and signals
     return <div>Loading...</div>;
   } else if (
@@ -312,14 +291,16 @@ export default function Sample() {
     Object.keys(dataPoint).length === 0 &&
     dataPoint.constructor === Object
   ) {
+    // Save all signal datapoints
     setDataPoint({ ...updateGraph(sigData) });
   } else {
     // Query made, render graph
 
-    // TODO: BUG IS HERE, need to optimize this function call/update
     let signals = dataPoint;
-    // let annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
-    let annotations = {};
+    console.log(dataPoint);
+    console.log(sigData);
+    let annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+    // let annotations = predictedAnnotation;
 
     /* Processing patient data */
     const patientComment = patientLists.patients.results.find(
@@ -352,6 +333,7 @@ export default function Sample() {
       <div>
         {/* Select button */}
         <div>
+          <p>Select Patient:</p>
           <Select
             placeholder="Choose Patient Record"
             onChange={handleDisplayPatientSelect}
@@ -370,14 +352,14 @@ export default function Sample() {
         <br />
         <form style={{}} onSubmit={handleAnnotationSliceStart}>
           <p>Range to generate annotations between</p>
-          <label>Start:</label>
+          <label>Start: </label>
           <input
             type="text"
             name="startTime"
             style={{ width: 60 }}
             onBlur={startChangeHandler}
           />
-          <label>End:</label>
+          <label>End: </label>
           <input
             type="text"
             name="endTime"
@@ -415,7 +397,6 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
-                    //predictions = updatePredictions(sigData);
                     annotations = updateAnnotations(
                       sigData,
                       ML2predictData,
