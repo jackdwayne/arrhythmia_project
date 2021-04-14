@@ -184,19 +184,22 @@ export default function Sample() {
     let MLIIdatapoints = [];
     let V5datapoints = [];
     let i = 0;
+    //setStart(signals[0].time);
+    //setEnd(Math.ceil(signals[signals.length - 1].time));
 
     for (i; i < signals.length; i++) {
       MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
       V5datapoints.push(createData(signals[i].time, signals[i].v5));
     }
     return { ml2: MLIIdatapoints, v5: V5datapoints };
-    //return { ml2: MLIIdatapoints, v5: V5datapoints, next: data.patient.next };
   }
 
   function updatePredictions(sigData) {
     let signals = sigData.patient.results;
-    let start = signals[0].time;
-    let end = Math.ceil(signals[signals.length - 1].time);
+    if (start == 0 && end == 0) {
+      start = signals[0].time;
+      let end = Math.ceil(signals[signals.length - 1].time);
+    }
     let MLIIannotations = [];
     let V5annotations = [];
     let i = 0.5;
@@ -210,13 +213,16 @@ export default function Sample() {
 
   function updateAnnotations(sigData, ML2predictions, V5predictions) {
     let signals = sigData.patient.results;
-    let start = signals[0].time;
-    let end = Math.ceil(signals[signals.length - 1].time);
+    if(!start && !end) {
+      setStart(signals[0].time);
+      setEnd(Math.ceil(signals[signals.length - 1].time));
+    }
+    
     let MLIIannotations = [];
     let V5annotations = [];
     let i = start + 0.5;
     console.log("start: " + start + " end: " + end);
-
+    console.log(i);
     for (i; i < end; i++) {
       MLIIannotations.push(createAnnotation(i, ML2predictions.predict.results[i]));
       V5annotations.push(createAnnotation(i, V5predictions.predict.results[i]));
@@ -243,6 +249,20 @@ export default function Sample() {
       ML2loadPredictions();
       V5loadPredictions();
     }
+  };
+
+  const handleAnnotationSliceStart = (event) => {
+    event.preventDefault();
+  };
+
+  const startChangeHandler = (event) => {
+    let start = event.target.value;
+    setStart(parseInt(start,10));
+  };
+
+  const endChangeHandler = (event) => {
+    let end = event.target.value;
+    setEnd(parseInt(end,10));
   };
 
   //did mount or updated
@@ -281,7 +301,7 @@ export default function Sample() {
             ))}
           </Select>
           <button onClick={() => handlePatientSubmit(displayPatientNumber)}>
-            Submit
+            Select patient
           </button>
         </div>
       );
@@ -294,11 +314,7 @@ export default function Sample() {
 
     // TODO: BUG IS HERE, need to optimize this function call/update
     let signals = updateGraph(sigData);
-    let predictions = updatePredictions(sigData);
     let annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
-    //console.log(predictData.predict.results[0.5]);
-    
-    console.log(ML2predictData.predict.results);
 
     /* Processing patient data */
     const patientComment = patientLists.patients.results.find(
@@ -336,15 +352,36 @@ export default function Sample() {
             onChange={handleDisplayPatientSelect}
             value={displayPatientNumber}
             autoWidth
+            style={{paddingright:5}}
           >
             {patientLists.patients.results.map((patient) => (
               <MenuItem value={patient.record_name}>
                 {patient.record_name}
               </MenuItem>
             ))}
-          </Select>
-          <button onClick={() => handlePatientSelect()}>Submit</button>
+          </Select> 
+          <button onClick={() => handlePatientSelect()}>Select patient</button>
         </div>
+        <br/>
+        <form style={{}} onSubmit={handleAnnotationSliceStart} >
+        <p>Range to generate annotations between</p>
+          <label>Start:</label>
+            <input 
+              type="text"
+              name='startTime'
+              style={{width:60}}
+              onBlur={startChangeHandler}
+            />
+          <label>End:</label>
+            <input
+              type="text"
+              name='endTime'
+              style={{width:60}}
+              onBlur={endChangeHandler}
+            />
+            <br/>
+            <input type='submit' style={{margin:10}}/>
+        </form>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
             {/* Chart */}
@@ -373,7 +410,7 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
-                    predictions = updatePredictions(sigData);
+                    //predictions = updatePredictions(sigData);
                     annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
                   }}
                 >
@@ -391,7 +428,7 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
-                    predictions = updatePredictions(sigData);
+                    //predictions = updatePredictions(sigData);
                     annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
                   }}
                 >
