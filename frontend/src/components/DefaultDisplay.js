@@ -239,9 +239,10 @@ export default function Sample() {
   const handlePatientSubmit = (displayPatientNumber) => {
     if (displayPatientNumber !== 0) {
       setPatientNumber(displayPatientNumber);
+      setDataPoint({});
       loadGraphs();
-      ML2loadPredictions();
-      V5loadPredictions();
+      // ML2loadPredictions();
+      // V5loadPredictions();
     }
   };
 
@@ -302,8 +303,7 @@ export default function Sample() {
       );
     }
   } else if (
-    calledSig &&
-    (graphLoading || ML2predictLoading || V5predictLoading)
+    graphLoading || ML2predictLoading || V5predictLoading
   ) {
     // Loading graph and signals
     return <div>Loading...</div>;
