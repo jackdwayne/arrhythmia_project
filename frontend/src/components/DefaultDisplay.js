@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
@@ -7,10 +7,9 @@ import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import PatientTable from "./Patient";
 import Title from "./Title";
-import { useQuery, useLazyQuery } from "@apollo/client";
-import { gql } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import Chart2 from "./Chart2";
-import { Button, Input, MenuItem, Select } from "@material-ui/core";
+import { Button, MenuItem, Select } from "@material-ui/core";
 import {
   signalQuery,
   predictQuery,
@@ -89,8 +88,8 @@ export default function Sample() {
   const [dataPoint, setDataPoint] = useState({});
 
   // Selection states
-  const [displayPatientNumber, setDisplayPatientNumber] = useState(0);
-  const [patientNumber, setPatientNumber] = useState(0);
+  const [displayPatientNumber, setDisplayPatientNumber] = useState("");
+  const [patientNumber, setPatientNumber] = useState("");
 
   // States to handle request string
   const [query, setQuery] = useState("");
@@ -215,8 +214,6 @@ export default function Sample() {
     let MLIIannotations = [];
     let V5annotations = [];
     let i = start + 0.5;
-    console.log("start: " + start + " end: " + end);
-    console.log(i);
     for (i; i < end; i++) {
       MLIIannotations.push(
         createAnnotation(i, ML2predictions.predict.results[i])
@@ -234,7 +231,8 @@ export default function Sample() {
   // Handler to update graph once selection is made post-startup
   const handlePatientSelect = () => {
     setPatientNumber(displayPatientNumber);
-    setDataPoint(updateGraph(sigData));
+    setDataPoint({});
+    loadGraphs();
   };
 
   // Handler to draw/update graph pre-startup
@@ -288,10 +286,11 @@ export default function Sample() {
             placeholder="Choose Patient Record"
             onChange={handleDisplayPatientSelect}
             value={displayPatientNumber}
+            displayEmpty
             autoWidth
           >
             {patientLists.patients.results.map((patient) => (
-              <MenuItem value={patient.record_name}>
+              <MenuItem value={patient.record_name} key={patient.record_name}>
                 {patient.record_name}
               </MenuItem>
             ))}
@@ -308,12 +307,19 @@ export default function Sample() {
   ) {
     // Loading graph and signals
     return <div>Loading...</div>;
+  } else if (
+    dataPoint &&
+    Object.keys(dataPoint).length === 0 &&
+    dataPoint.constructor === Object
+  ) {
+    setDataPoint({ ...updateGraph(sigData) });
   } else {
     // Query made, render graph
 
     // TODO: BUG IS HERE, need to optimize this function call/update
-    let signals = updateGraph(sigData);
-    let annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+    let signals = dataPoint;
+    // let annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+    let annotations = {};
 
     /* Processing patient data */
     const patientComment = patientLists.patients.results.find(
@@ -354,7 +360,7 @@ export default function Sample() {
             style={{ paddingright: 5 }}
           >
             {patientLists.patients.results.map((patient) => (
-              <MenuItem value={patient.record_name}>
+              <MenuItem value={patient.record_name} key={patient.record_name}>
                 {patient.record_name}
               </MenuItem>
             ))}
@@ -431,7 +437,6 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
-                    //predictions = updatePredictions(sigData);
                     annotations = updateAnnotations(
                       sigData,
                       ML2predictData,
@@ -454,7 +459,7 @@ export default function Sample() {
               </Paper>
             </Grid>
             <Grid item xs={12}>
-              <Grid Container spacing={2}>
+              <Grid container spacing={2}>
                 <Grid item>
                   <PatientTable
                     patientID={patientNumber}

@@ -1,13 +1,10 @@
 /* App.js */
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import CanvasJSReact from "./canvasjs.stock.react";
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSStockChart = CanvasJSReact.CanvasJSStockChart;
 
-class Chart2 extends Component {
-  constructor(props) {
-    super(props);
-  }
+class Chart2 extends PureComponent {
 
   render() {
     const options = {
