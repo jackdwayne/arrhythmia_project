@@ -5,38 +5,20 @@ import Divider from "@material-ui/core/Divider";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-//import Chart from "./Chart";
 import PatientTable from "./Patient";
 import Title from "./Title";
 import { useQuery, useLazyQuery } from "@apollo/client";
 import { gql } from "@apollo/client";
 import Chart2 from "./Chart2";
 import { Button, Input, MenuItem, Select } from "@material-ui/core";
-import { patientQuery } from "../graphql-logic/queries";
+import {
+  signalQuery,
+  predictQuery,
+  patientQuery,
+} from "../graphql-logic/queries";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
-
-const signalQuery = gql`
-  query getPatient($qPath: String) {
-    patient(qPath: $qPath)
-      @rest(type: "Patient", path: $qPath, endpoint: "signal") {
-      count
-      next
-      previous
-      results
-    }
-  }
-`;
-
-const predictQuery = gql`
-  query getPrediction($pPath: String) {
-    predict(pPath: $pPath)
-      @rest(type: "Patient", path: $pPath, endpoint: "predict") {
-      results
-    }
-  }
-`;
 
 // Generate pairs of timestamps and readings
 function createData(time, amount) {
@@ -151,7 +133,11 @@ export default function Sample() {
       data: ML2predictData,
     },
   ] = useLazyQuery(predictQuery, {
-    variables: { pPath: predictionPath.concat(String(displayPatientNumber)).concat("&lead=mlii&start=0&end=1805") },
+    variables: {
+      pPath: predictionPath
+        .concat(String(displayPatientNumber))
+        .concat("&lead=mlii&start=0&end=1805"),
+    },
   });
 
   // State that handles queries for predictions on annotations from ML backend
@@ -164,7 +150,11 @@ export default function Sample() {
       data: V5predictData,
     },
   ] = useLazyQuery(predictQuery, {
-    variables: { pPath: predictionPath.concat(String(displayPatientNumber)).concat("&lead=v5&start=0&end=1805") },
+    variables: {
+      pPath: predictionPath
+        .concat(String(displayPatientNumber))
+        .concat("&lead=v5&start=0&end=1805"),
+    },
   });
 
   // State that handles queries for list of patients
@@ -204,30 +194,36 @@ export default function Sample() {
     let V5annotations = [];
     let i = 0.5;
 
-    for (i; i < (end - start); i++) {
-      MLIIannotations.push(createData(signals[(i * 360)].time, signals[(i * 360)].mlii));
-      V5annotations.push(createData(signals[(i * 360)].time, signals[(i * 360)].v5));
+    for (i; i < end - start; i++) {
+      MLIIannotations.push(
+        createData(signals[i * 360].time, signals[i * 360].mlii)
+      );
+      V5annotations.push(
+        createData(signals[i * 360].time, signals[i * 360].v5)
+      );
     }
     return { ml2: MLIIannotations, v5: V5annotations };
   }
 
   function updateAnnotations(sigData, ML2predictions, V5predictions) {
     let signals = sigData.patient.results;
-    if(!start && !end) {
+    if (!start && !end) {
       setStart(signals[0].time);
       setEnd(Math.ceil(signals[signals.length - 1].time));
     }
-    
+
     let MLIIannotations = [];
     let V5annotations = [];
     let i = start + 0.5;
     console.log("start: " + start + " end: " + end);
     console.log(i);
     for (i; i < end; i++) {
-      MLIIannotations.push(createAnnotation(i, ML2predictions.predict.results[i]));
+      MLIIannotations.push(
+        createAnnotation(i, ML2predictions.predict.results[i])
+      );
       V5annotations.push(createAnnotation(i, V5predictions.predict.results[i]));
     }
-    return { ml2: MLIIannotations , v5: V5annotations};
+    return { ml2: MLIIannotations, v5: V5annotations };
   }
 
   // Handler to set patient id
@@ -257,12 +253,12 @@ export default function Sample() {
 
   const startChangeHandler = (event) => {
     let start = event.target.value;
-    setStart(parseInt(start,10));
+    setStart(parseInt(start, 10));
   };
 
   const endChangeHandler = (event) => {
     let end = event.target.value;
-    setEnd(parseInt(end,10));
+    setEnd(parseInt(end, 10));
   };
 
   //did mount or updated
@@ -301,12 +297,15 @@ export default function Sample() {
             ))}
           </Select>
           <button onClick={() => handlePatientSubmit(displayPatientNumber)}>
-            Select patient
+            Select Patient
           </button>
         </div>
       );
     }
-  } else if (calledSig && (graphLoading || ML2predictLoading || V5predictLoading)) {
+  } else if (
+    calledSig &&
+    (graphLoading || ML2predictLoading || V5predictLoading)
+  ) {
     // Loading graph and signals
     return <div>Loading...</div>;
   } else {
@@ -352,35 +351,35 @@ export default function Sample() {
             onChange={handleDisplayPatientSelect}
             value={displayPatientNumber}
             autoWidth
-            style={{paddingright:5}}
+            style={{ paddingright: 5 }}
           >
             {patientLists.patients.results.map((patient) => (
               <MenuItem value={patient.record_name}>
                 {patient.record_name}
               </MenuItem>
             ))}
-          </Select> 
-          <button onClick={() => handlePatientSelect()}>Select patient</button>
+          </Select>
+          <button onClick={() => handlePatientSelect()}>Select Patient</button>
         </div>
-        <br/>
-        <form style={{}} onSubmit={handleAnnotationSliceStart} >
-        <p>Range to generate annotations between</p>
+        <br />
+        <form style={{}} onSubmit={handleAnnotationSliceStart}>
+          <p>Range to generate annotations between</p>
           <label>Start:</label>
-            <input 
-              type="text"
-              name='startTime'
-              style={{width:60}}
-              onBlur={startChangeHandler}
-            />
+          <input
+            type="text"
+            name="startTime"
+            style={{ width: 60 }}
+            onBlur={startChangeHandler}
+          />
           <label>End:</label>
-            <input
-              type="text"
-              name='endTime'
-              style={{width:60}}
-              onBlur={endChangeHandler}
-            />
-            <br/>
-            <input type='submit' style={{margin:10}}/>
+          <input
+            type="text"
+            name="endTime"
+            style={{ width: 60 }}
+            onBlur={endChangeHandler}
+          />
+          <br />
+          <input type="submit" style={{ margin: 10 }} />
         </form>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
@@ -411,7 +410,11 @@ export default function Sample() {
                       },
                     });
                     //predictions = updatePredictions(sigData);
-                    annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+                    annotations = updateAnnotations(
+                      sigData,
+                      ML2predictData,
+                      V5predictData
+                    );
                   }}
                 >
                   Load Previous
@@ -429,7 +432,11 @@ export default function Sample() {
                       },
                     });
                     //predictions = updatePredictions(sigData);
-                    annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+                    annotations = updateAnnotations(
+                      sigData,
+                      ML2predictData,
+                      V5predictData
+                    );
                   }}
                 >
                   Load Next
@@ -439,11 +446,11 @@ export default function Sample() {
               <Divider />
               <Paper>
                 <Title>V5</Title>
-                <Chart2 
+                <Chart2
                   key={2}
-                  data={signals.v5} 
+                  data={signals.v5}
                   annotations={annotations.v5}
-                  />
+                />
               </Paper>
             </Grid>
             <Grid item xs={12}>
