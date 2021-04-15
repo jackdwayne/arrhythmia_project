@@ -12,7 +12,7 @@ class Chart2 extends PureComponent {
       charts: [
         {
           axisX: {
-            title: "Time (ms)",
+            title: "Time (s)",
             crosshair: {
               enabled: true,
               snapToDataPoint: true,
@@ -33,7 +33,7 @@ class Chart2 extends PureComponent {
             {
               type: "scatter",
               markerSize: 8,
-              toolTipContent: "{x} ms: {y} hz, Annotation: {label}",
+              toolTipContent: "{x} s: {y} hz, Annotation: {label}",
               dataPoints: this.props.annotations,
               color: "green",
             },
@@ -45,7 +45,7 @@ class Chart2 extends PureComponent {
             },
             {
               type: "spline",
-              toolTipContent: "{x} ms: {y} hz",
+              toolTipContent: "{x} s: {y} hz",
               dataPoints: this.props.data,
               color: "#4F81BC",
             },
