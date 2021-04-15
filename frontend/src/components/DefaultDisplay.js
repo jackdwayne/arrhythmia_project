@@ -25,7 +25,7 @@ function createData(time, amount) {
   return { x: time, y: amount };
 }
 
-function createAnnotation(time, label) {
+function createPredictAnnotation(time, label) {
   return { value: time, label: label };
 }
 
@@ -173,34 +173,62 @@ export default function Sample() {
     let signals = data.patient.results;
     let MLIIdatapoints = [];
     let V5datapoints = [];
+    let mliiFoundAnnotations = [];
+    let v5FoundAnnotations = [];
     let i = 0;
     //setStart(signals[0].time);
     //setEnd(Math.ceil(signals[signals.length - 1].time));
-
     for (i; i < signals.length; i++) {
       MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
       V5datapoints.push(createData(signals[i].time, signals[i].v5));
+      if (signals[i].annotation !== null) {
+        mliiFoundAnnotations.push({
+          x: signals[i].time,
+          y: signals[i].mlii,
+          indexLabel: signals[i].annotation,
+          indexLabelFontColor: "orangered",
+          markerColor: "orangered",
+        });
+        v5FoundAnnotations.push({
+          x: signals[i].time,
+          y: signals[i].v5,
+          indexLabel: signals[i].annotation,
+          indexLabelFontColor: "orangered",
+          markerColor: "orangered",
+        });
+      }
     }
-    return { ml2: MLIIdatapoints, v5: V5datapoints };
+    return {
+      ml2: MLIIdatapoints,
+      v5: V5datapoints,
+      ml2Annotations: mliiFoundAnnotations,
+      v5Annotations: v5FoundAnnotations,
+    };
   }
 
-  function updateAnnotations(sigData, ML2predictions, V5predictions) {
+  function updatePredictAnnotations(sigData, ML2predictions, V5predictions) {
     let signals = sigData.patient.results;
+    let startTime = start;
+    let endTime = end;
     if (!start && !end) {
-      setStart(signals[0].time);
-      setEnd(Math.ceil(signals[signals.length - 1].time));
+      // setStart(signals[0].time);
+      // setEnd(Math.ceil(signals[signals.length - 1].time));
+      startTime = signals[0].time;
+      endTime = Math.ceil(signals[signals.length - 1].time);
     }
 
-    let MLIIannotations = [];
-    let V5annotations = [];
-    let i = start + 0.5;
-    for (i; i < end; i++) {
-      MLIIannotations.push(
-        createAnnotation(i, ML2predictions.predict.results[i])
+    let MLIIPredictions = [];
+    let V5Predictions = [];
+    let i = startTime + 0.5;
+    for (i; i < endTime; i++) {
+      MLIIPredictions.push(
+        createPredictAnnotation(i, ML2predictions.predict.results[i])
       );
-      V5annotations.push(createAnnotation(i, V5predictions.predict.results[i]));
+      V5Predictions.push(
+        createPredictAnnotation(i, V5predictions.predict.results[i])
+      );
     }
-    return { ml2: MLIIannotations, v5: V5annotations };
+    return { ml2: MLIIPredictions, v5: V5Predictions };
   }
 
   // Handler to set patient id
@@ -297,9 +325,13 @@ export default function Sample() {
     // Query made, render graph
 
     let signals = dataPoint;
-    console.log(dataPoint);
-    console.log(sigData);
-    let annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+    // console.log(dataPoint);
+    // console.log(sigData);
+    let predictions = updatePredictAnnotations(
+      sigData,
+      ML2predictData,
+      V5predictData
+    );
     // let annotations = predictedAnnotation;
 
     /* Processing patient data */
@@ -383,7 +415,8 @@ export default function Sample() {
                 <Chart2
                   key={1}
                   data={signals.ml2}
-                  annotations={annotations.ml2}
+                  predictions={predictions.ml2}
+                  annotations={signals.ml2Annotations}
                 />
               </Paper>
               {sigData.patient.previous && (
@@ -394,10 +427,11 @@ export default function Sample() {
                         qPath: sigData.patient.previous.slice(29),
                       },
                       updateQuery: (prevResult, { fetchMoreResult }) => {
+                        setDataPoint({ ...updateGraph(fetchMoreResult) });
                         return fetchMoreResult;
                       },
                     });
-                    annotations = updateAnnotations(
+                    predictions = updatePredictAnnotations(
                       sigData,
                       ML2predictData,
                       V5predictData
@@ -415,10 +449,11 @@ export default function Sample() {
                         qPath: sigData.patient.next.slice(29),
                       },
                       updateQuery: (prevResult, { fetchMoreResult }) => {
+                        setDataPoint({ ...updateGraph(fetchMoreResult) });
                         return fetchMoreResult;
                       },
                     });
-                    annotations = updateAnnotations(
+                    predictions = updatePredictAnnotations(
                       sigData,
                       ML2predictData,
                       V5predictData
@@ -435,7 +470,8 @@ export default function Sample() {
                 <Chart2
                   key={2}
                   data={signals.v5}
-                  annotations={annotations.v5}
+                  predictions={predictions.v5}
+                  annotations={signals.v5Annotations}
                 />
               </Paper>
             </Grid>

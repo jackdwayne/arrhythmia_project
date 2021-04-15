@@ -5,7 +5,6 @@ var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSStockChart = CanvasJSReact.CanvasJSStockChart;
 
 class Chart2 extends PureComponent {
-
   render() {
     const options = {
       animationEnabled: true,
@@ -17,7 +16,7 @@ class Chart2 extends PureComponent {
               enabled: true,
               snapToDataPoint: true,
             },
-            stripLines: this.props.annotations
+            stripLines: this.props.predictions,
           },
           axisY: {
             minimum: -1,
@@ -36,6 +35,13 @@ class Chart2 extends PureComponent {
             {
               type: "scatter",
               dataPoints: this.props.predictData,
+            },
+            {
+              type: "scatter",
+              markerSize: 8,
+              dataPoints: this.props.annotations,
+              indexLabelFontColor: "orangered",
+              markerColor: "orangered",
             },
           ],
         },
