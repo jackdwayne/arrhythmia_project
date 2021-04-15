@@ -10,7 +10,7 @@ function App() {
   // Theme of app can be specified, can set default to dark.
   // Uncomment line 13 to switch defaults
   let defaultThemeMode = useMediaQuery("(prefers-color-scheme: light)");
-  // defaultThemeMode = useMediaQuery('(prefers-color-scheme: dark)');
+  defaultThemeMode = useMediaQuery("(prefers-color-scheme: dark)");
   const prefersDarkMode = defaultThemeMode;
   const theme = React.useMemo(
     () =>

@@ -79,10 +79,6 @@ export default function Sample() {
   //       (Currently hard-coded to pick up all data from all the time in the database)
   // TODO: Need to implement a better component that queries the db on the possible list of patients and allow the user
   //       to select the user using a drop-down
-  // TODO: Need to implement a component that picks up a time range, and graph type to pick up a list of ML-based
-  //       annotations
-  // TODO: Make selection for Patient prettier
-  // TODO: Make it dynamic (aka pick up attributes from components and concat them)
 
   // Data State
   const [dataPoint, setDataPoint] = useState({});
@@ -185,16 +181,12 @@ export default function Sample() {
         mliiFoundAnnotations.push({
           x: signals[i].time,
           y: signals[i].mlii,
-          indexLabel: signals[i].annotation,
-          indexLabelFontColor: "orangered",
-          markerColor: "orangered",
+          label: signals[i].annotation,
         });
         v5FoundAnnotations.push({
           x: signals[i].time,
           y: signals[i].v5,
-          indexLabel: signals[i].annotation,
-          indexLabelFontColor: "orangered",
-          markerColor: "orangered",
+          label: signals[i].annotation,
         });
       }
     }
@@ -332,7 +324,7 @@ export default function Sample() {
       ML2predictData,
       V5predictData
     );
-    // let annotations = predictedAnnotation;
+    // let predictions = predictedAnnotation;
 
     /* Processing patient data */
     const patientComment = patientLists.patients.results.find(
@@ -406,7 +398,7 @@ export default function Sample() {
             {/* Chart */}
             <Grid item xs={12} md={10} lg={12}>
               <Paper>
-                <Title>ML II</Title>
+                <Typography variant="h4">ML II</Typography>
                 {/* <form onSubmit={handleJumpSubmit}>
               
               <input label="Start" onChange={setStart(this.value)}></input>
@@ -466,7 +458,7 @@ export default function Sample() {
 
               <Divider />
               <Paper>
-                <Title>V5</Title>
+                <Typography variant="h4">V5</Typography>
                 <Chart2
                   key={2}
                   data={signals.v5}

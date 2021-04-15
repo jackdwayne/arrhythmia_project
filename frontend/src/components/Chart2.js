@@ -12,6 +12,7 @@ class Chart2 extends PureComponent {
       charts: [
         {
           axisX: {
+            title: "Time (ms)",
             crosshair: {
               enabled: true,
               snapToDataPoint: true,
@@ -19,6 +20,7 @@ class Chart2 extends PureComponent {
             stripLines: this.props.predictions,
           },
           axisY: {
+            title: "Measurement (hz)",
             minimum: -1,
             maximum: 2.0,
             interval: 0.25,
@@ -29,19 +31,23 @@ class Chart2 extends PureComponent {
           },
           data: [
             {
-              type: "spline",
-              dataPoints: this.props.data,
+              type: "scatter",
+              markerSize: 8,
+              toolTipContent: "{x} ms: {y} hz, Annotation: {label}",
+              dataPoints: this.props.annotations,
+              color: "green",
             },
             {
               type: "scatter",
               dataPoints: this.props.predictData,
+              // Doesn't actually work :(
+              indexLabelOrientation: "horizontal",
             },
             {
-              type: "scatter",
-              markerSize: 8,
-              dataPoints: this.props.annotations,
-              indexLabelFontColor: "orangered",
-              markerColor: "orangered",
+              type: "spline",
+              toolTipContent: "{x} ms: {y} hz",
+              dataPoints: this.props.data,
+              color: "#4F81BC",
             },
           ],
         },
