@@ -25,20 +25,21 @@ import shutil
 class UploadedFileViewSet(APIView):
 
     serializer_class = UploadSerializer
-    
+
     def post(self, request):
-        
-        # serialize file data 
+
+        # serialize file data
         serializer = UploadSerializer(data=request.data)
-        
-        # validate file 
+
+        # validate file
         serializer.is_valid(raise_exception=True)
 
-        # get file object 
+        # get file object
         file = request.FILES
-        tempDir = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/'
+        tempDir = str(pathlib.Path().absolute()) + \
+            '/temp_uploaded_patient_data/'
         os.mkdir(tempDir)
-        fileName = ""        
+        fileName = ""
         for f in request.FILES.getlist('file'):
             fileName = f
             fileDestination = tempDir + '/' + f._name
@@ -46,17 +47,17 @@ class UploadedFileViewSet(APIView):
             destination = open(fileDestination, 'wb+')
             for chunk in f.chunks():
                 destination.write(chunk)
-            destination.close()        
-        
-        # start patRecFormatter to parse data using wfdb library (wave form database) 
+            destination.close()
+
+        # start patRecFormatter to parse data using wfdb library (wave form database)
         dataParser.start(self, tempDir, fileName)
 
-        # delete temp directory and all of its contents 
+        # delete temp directory and all of its contents
         try:
             shutil.rmtree(tempDir)
         except OSError as e:
-            print ("Error: %s - %s." % (e.filename, e.strerror))
-        
+            print("Error: %s - %s." % (e.filename, e.strerror))
+
         return Response(serializer.data)
 
 
@@ -136,11 +137,14 @@ class Predict_Signals(APIView):
         patient_id = int(request.GET['signal_record_name'])
         lead_type = request.GET['lead']
 
+        if end == 0:
+            return Response({"results": {}}, status=200)
+
         # Specifying parameters and classification for the model
         WINDOW_SIZE = 360
         TIME_STEP = 1
         EPOCHS = 1
-        CHANNEL = 'MLII'
+        CHANNEL = lead_type.upper()
         CLASSIFICATION = {' ': 0, 'N': 1, '"': 2, 'A': 3, 'E': 4, 'F': 5, 'J': 6, 'L': 7, '!': 8, 'Q': 9,
                           'R': 10, 'S': 11, 'V': 12, 'Z': 13, '[': 14, ']': 15, 'a': 16, 'e': 17, 'f': 18, 'j': 19}
 

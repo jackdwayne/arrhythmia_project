@@ -1,42 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-//import Chart from "./Chart";
 import PatientTable from "./Patient";
 import Title from "./Title";
-import { useQuery, useLazyQuery } from "@apollo/client";
-import { gql } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import Chart2 from "./Chart2";
-import { Button, Input, MenuItem, Select } from "@material-ui/core";
-import { patientQuery } from "../graphql-logic/queries";
+import { Button, MenuItem, Select } from "@material-ui/core";
+import {
+  signalQuery,
+  predictQuery,
+  patientQuery,
+} from "../graphql-logic/queries";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
-
-const signalQuery = gql`
-  query getPatient($qPath: String) {
-    patient(qPath: $qPath)
-      @rest(type: "Patient", path: $qPath, endpoint: "signal") {
-      count
-      next
-      previous
-      results
-    }
-  }
-`;
-
-const predictQuery = gql`
-  query getPrediction($pPath: String) {
-    predict(pPath: $pPath)
-      @rest(type: "Patient", path: $pPath, endpoint: "predict") {
-      results
-    }
-  }
-`;
 
 // Generate pairs of timestamps and readings
 function createData(time, amount) {
@@ -44,7 +25,7 @@ function createData(time, amount) {
   return { x: time, y: amount };
 }
 
-function createAnnotation(time, label) {
+function createPredictAnnotation(time, label) {
   return { value: time, label: label };
 }
 
@@ -96,19 +77,14 @@ export default function Sample() {
 
   // TODO: Need to implement a component that picks up time range so that the user can query a specific time slot.
   //       (Currently hard-coded to pick up all data from all the time in the database)
-  // TODO: Need to implement a better component that queries the db on the possible list of patients and allow the user
-  //       to select the user using a drop-down
-  // TODO: Need to implement a component that picks up a time range, and graph type to pick up a list of ML-based
-  //       annotations
-  // TODO: Make selection for Patient prettier
-  // TODO: Make it dynamic (aka pick up attributes from components and concat them)
 
   // Data State
   const [dataPoint, setDataPoint] = useState({});
+  const [predictedAnnotation, setPredictedAnnotation] = useState({});
 
   // Selection states
-  const [displayPatientNumber, setDisplayPatientNumber] = useState(0);
-  const [patientNumber, setPatientNumber] = useState(0);
+  const [displayPatientNumber, setDisplayPatientNumber] = useState("");
+  const [patientNumber, setPatientNumber] = useState("");
 
   // States to handle request string
   const [query, setQuery] = useState("");
@@ -151,7 +127,11 @@ export default function Sample() {
       data: ML2predictData,
     },
   ] = useLazyQuery(predictQuery, {
-    variables: { pPath: predictionPath.concat(String(displayPatientNumber)).concat("&lead=mlii&start=0&end=1805") },
+    variables: {
+      pPath: predictionPath
+        .concat(String(displayPatientNumber))
+        .concat("&lead=mlii&start=0&end=1805"),
+    },
   });
 
   // State that handles queries for predictions on annotations from ML backend
@@ -164,7 +144,11 @@ export default function Sample() {
       data: V5predictData,
     },
   ] = useLazyQuery(predictQuery, {
-    variables: { pPath: predictionPath.concat(String(displayPatientNumber)).concat("&lead=v5&start=0&end=1805") },
+    variables: {
+      pPath: predictionPath
+        .concat(String(displayPatientNumber))
+        .concat("&lead=v5&start=0&end=1805"),
+    },
   });
 
   // State that handles queries for list of patients
@@ -183,51 +167,59 @@ export default function Sample() {
     let signals = data.patient.results;
     let MLIIdatapoints = [];
     let V5datapoints = [];
+    let mliiFoundAnnotations = [];
+    let v5FoundAnnotations = [];
     let i = 0;
     //setStart(signals[0].time);
     //setEnd(Math.ceil(signals[signals.length - 1].time));
-
     for (i; i < signals.length; i++) {
       MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
       V5datapoints.push(createData(signals[i].time, signals[i].v5));
+      // DB for annotation may be either null (older version) or '' (newer version)
+      if (signals[i].annotation !== null && signals[i].annotation !== "") {
+        mliiFoundAnnotations.push({
+          x: signals[i].time,
+          y: signals[i].mlii,
+          label: signals[i].annotation,
+        });
+        v5FoundAnnotations.push({
+          x: signals[i].time,
+          y: signals[i].v5,
+          label: signals[i].annotation,
+        });
+      }
     }
-    return { ml2: MLIIdatapoints, v5: V5datapoints };
+    return {
+      ml2: MLIIdatapoints,
+      v5: V5datapoints,
+      ml2Annotations: mliiFoundAnnotations,
+      v5Annotations: v5FoundAnnotations,
+    };
   }
 
-  function updatePredictions(sigData) {
+  function updatePredictAnnotations(sigData, ML2predictions, V5predictions) {
     let signals = sigData.patient.results;
-    if (start == 0 && end == 0) {
-      start = signals[0].time;
-      let end = Math.ceil(signals[signals.length - 1].time);
+    let startTime = start;
+    let endTime = end;
+    if (!start && !end) {
+      // setStart(signals[0].time);
+      // setEnd(Math.ceil(signals[signals.length - 1].time));
+      startTime = signals[0].time;
+      endTime = Math.ceil(signals[signals.length - 1].time);
     }
-    let MLIIannotations = [];
-    let V5annotations = [];
-    let i = 0.5;
 
-    for (i; i < (end - start); i++) {
-      MLIIannotations.push(createData(signals[(i * 360)].time, signals[(i * 360)].mlii));
-      V5annotations.push(createData(signals[(i * 360)].time, signals[(i * 360)].v5));
+    let MLIIPredictions = [];
+    let V5Predictions = [];
+    let i = startTime + 0.5;
+    for (i; i < endTime; i++) {
+      MLIIPredictions.push(
+        createPredictAnnotation(i, ML2predictions.predict.results[i])
+      );
+      V5Predictions.push(
+        createPredictAnnotation(i, V5predictions.predict.results[i])
+      );
     }
-    return { ml2: MLIIannotations, v5: V5annotations };
-  }
-
-  function updateAnnotations(sigData, ML2predictions, V5predictions) {
-    let signals = sigData.patient.results;
-    if(!start && !end) {
-      setStart(signals[0].time);
-      setEnd(Math.ceil(signals[signals.length - 1].time));
-    }
-    
-    let MLIIannotations = [];
-    let V5annotations = [];
-    let i = start + 0.5;
-    console.log("start: " + start + " end: " + end);
-    console.log(i);
-    for (i; i < end; i++) {
-      MLIIannotations.push(createAnnotation(i, ML2predictions.predict.results[i]));
-      V5annotations.push(createAnnotation(i, V5predictions.predict.results[i]));
-    }
-    return { ml2: MLIIannotations , v5: V5annotations};
+    return { ml2: MLIIPredictions, v5: V5Predictions };
   }
 
   // Handler to set patient id
@@ -238,13 +230,15 @@ export default function Sample() {
   // Handler to update graph once selection is made post-startup
   const handlePatientSelect = () => {
     setPatientNumber(displayPatientNumber);
-    setDataPoint(updateGraph(sigData));
+    setDataPoint({});
+    loadGraphs();
   };
 
   // Handler to draw/update graph pre-startup
   const handlePatientSubmit = (displayPatientNumber) => {
-    if (displayPatientNumber !== 0) {
+    if (displayPatientNumber !== "") {
       setPatientNumber(displayPatientNumber);
+      setDataPoint({});
       loadGraphs();
       ML2loadPredictions();
       V5loadPredictions();
@@ -257,12 +251,12 @@ export default function Sample() {
 
   const startChangeHandler = (event) => {
     let start = event.target.value;
-    setStart(parseInt(start,10));
+    setStart(parseInt(start, 10));
   };
 
   const endChangeHandler = (event) => {
     let end = event.target.value;
-    setEnd(parseInt(end,10));
+    setEnd(parseInt(end, 10));
   };
 
   //did mount or updated
@@ -288,33 +282,46 @@ export default function Sample() {
       // Render selection list for pre-startup
       return (
         <div>
+          <p>Select Patient:</p>
           <Select
             placeholder="Choose Patient Record"
             onChange={handleDisplayPatientSelect}
             value={displayPatientNumber}
+            displayEmpty
             autoWidth
           >
             {patientLists.patients.results.map((patient) => (
-              <MenuItem value={patient.record_name}>
+              <MenuItem value={patient.record_name} key={patient.record_name}>
                 {patient.record_name}
               </MenuItem>
             ))}
           </Select>
           <button onClick={() => handlePatientSubmit(displayPatientNumber)}>
-            Select patient
+            Select Patient
           </button>
         </div>
       );
     }
-  } else if (calledSig && (graphLoading || ML2predictLoading || V5predictLoading)) {
+  } else if (graphLoading || ML2predictLoading || V5predictLoading) {
     // Loading graph and signals
     return <div>Loading...</div>;
+  } else if (
+    dataPoint &&
+    Object.keys(dataPoint).length === 0 &&
+    dataPoint.constructor === Object
+  ) {
+    // Save all signal data points
+    setDataPoint({ ...updateGraph(sigData) });
   } else {
     // Query made, render graph
 
-    // TODO: BUG IS HERE, need to optimize this function call/update
-    let signals = updateGraph(sigData);
-    let annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+    let signals = dataPoint;
+    let predictions = updatePredictAnnotations(
+      sigData,
+      ML2predictData,
+      V5predictData
+    );
+    // let predictions = predictedAnnotation;
 
     /* Processing patient data */
     const patientComment = patientLists.patients.results.find(
@@ -347,47 +354,48 @@ export default function Sample() {
       <div>
         {/* Select button */}
         <div>
+          <p>Select Patient:</p>
           <Select
             placeholder="Choose Patient Record"
             onChange={handleDisplayPatientSelect}
             value={displayPatientNumber}
             autoWidth
-            style={{paddingright:5}}
+            style={{ paddingright: 5 }}
           >
             {patientLists.patients.results.map((patient) => (
-              <MenuItem value={patient.record_name}>
+              <MenuItem value={patient.record_name} key={patient.record_name}>
                 {patient.record_name}
               </MenuItem>
             ))}
-          </Select> 
-          <button onClick={() => handlePatientSelect()}>Select patient</button>
+          </Select>
+          <button onClick={() => handlePatientSelect()}>Select Patient</button>
         </div>
-        <br/>
-        <form style={{}} onSubmit={handleAnnotationSliceStart} >
-        <p>Range to generate annotations between</p>
-          <label>Start:</label>
-            <input 
-              type="text"
-              name='startTime'
-              style={{width:60}}
-              onBlur={startChangeHandler}
-            />
-          <label>End:</label>
-            <input
-              type="text"
-              name='endTime'
-              style={{width:60}}
-              onBlur={endChangeHandler}
-            />
-            <br/>
-            <input type='submit' style={{margin:10}}/>
+        <br />
+        <form style={{}} onSubmit={handleAnnotationSliceStart}>
+          <p>Range to generate annotations between</p>
+          <label>Start: </label>
+          <input
+            type="text"
+            name="startTime"
+            style={{ width: 60 }}
+            onBlur={startChangeHandler}
+          />
+          <label>End: </label>
+          <input
+            type="text"
+            name="endTime"
+            style={{ width: 60 }}
+            onBlur={endChangeHandler}
+          />
+          <br />
+          <input type="submit" style={{ margin: 10 }} />
         </form>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
             {/* Chart */}
             <Grid item xs={12} md={10} lg={12}>
               <Paper>
-                <Title>ML II</Title>
+                <Typography variant="h4">ML II</Typography>
                 {/* <form onSubmit={handleJumpSubmit}>
               
               <input label="Start" onChange={setStart(this.value)}></input>
@@ -396,7 +404,8 @@ export default function Sample() {
                 <Chart2
                   key={1}
                   data={signals.ml2}
-                  annotations={annotations.ml2}
+                  predictions={predictions.ml2}
+                  annotations={signals.ml2Annotations}
                 />
               </Paper>
               {sigData.patient.previous && (
@@ -407,11 +416,15 @@ export default function Sample() {
                         qPath: sigData.patient.previous.slice(29),
                       },
                       updateQuery: (prevResult, { fetchMoreResult }) => {
+                        setDataPoint({ ...updateGraph(fetchMoreResult) });
                         return fetchMoreResult;
                       },
                     });
-                    //predictions = updatePredictions(sigData);
-                    annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+                    predictions = updatePredictAnnotations(
+                      sigData,
+                      ML2predictData,
+                      V5predictData
+                    );
                   }}
                 >
                   Load Previous
@@ -425,11 +438,15 @@ export default function Sample() {
                         qPath: sigData.patient.next.slice(29),
                       },
                       updateQuery: (prevResult, { fetchMoreResult }) => {
+                        setDataPoint({ ...updateGraph(fetchMoreResult) });
                         return fetchMoreResult;
                       },
                     });
-                    //predictions = updatePredictions(sigData);
-                    annotations = updateAnnotations(sigData, ML2predictData, V5predictData);
+                    predictions = updatePredictAnnotations(
+                      sigData,
+                      ML2predictData,
+                      V5predictData
+                    );
                   }}
                 >
                   Load Next
@@ -438,16 +455,17 @@ export default function Sample() {
 
               <Divider />
               <Paper>
-                <Title>V5</Title>
-                <Chart2 
+                <Typography variant="h4">V5</Typography>
+                <Chart2
                   key={2}
-                  data={signals.v5} 
-                  annotations={annotations.v5}
-                  />
+                  data={signals.v5}
+                  predictions={predictions.v5}
+                  annotations={signals.v5Annotations}
+                />
               </Paper>
             </Grid>
             <Grid item xs={12}>
-              <Grid Container spacing={2}>
+              <Grid container spacing={2} direction="column">
                 <Grid item>
                   <PatientTable
                     patientID={patientNumber}

@@ -24,10 +24,9 @@ export class AddUser extends Component{
     this.setState({ selectedFiles, loading })
   }
 
-  fileInputHandler(event){
-
+  fileInputHandler(event) {
     const files = event.target.files;
-    let tempArray = []
+    let tempArray = [];
     for (let i = 0; i < files.length; i++) {
         tempArray[i] = event.target.files[i]
     }
@@ -41,13 +40,12 @@ export class AddUser extends Component{
 
   fileInputButton() {
     let currentFiles = this.state.selectedFiles;
-    if(currentFiles){
+    if (currentFiles) {
       let formData = new FormData();
       for (let i = 0; i < currentFiles.length; i++) {
-  
-        console.log("i: " + i.toString())
-        formData.append('file', currentFiles[i]);
-        console.log(currentFiles[i])  
+        console.log("i: " + i.toString());
+        formData.append("file", currentFiles[i]);
+        console.log(currentFiles[i]);
       }
       
       let url = 'http://localhost:8000/uploadPatient/'
@@ -142,4 +140,3 @@ export class AddUser extends Component{
     );
   }
 }
-

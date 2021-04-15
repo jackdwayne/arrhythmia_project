@@ -1,14 +1,10 @@
 /* App.js */
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import CanvasJSReact from "./canvasjs.stock.react";
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSStockChart = CanvasJSReact.CanvasJSStockChart;
 
-class Chart2 extends Component {
-  constructor(props) {
-    super(props);
-  }
-
+class Chart2 extends PureComponent {
   render() {
     const options = {
       animationEnabled: true,
@@ -16,13 +12,15 @@ class Chart2 extends Component {
       charts: [
         {
           axisX: {
+            title: "Time (s)",
             crosshair: {
               enabled: true,
               snapToDataPoint: true,
             },
-            stripLines: this.props.annotations
+            stripLines: this.props.predictions,
           },
           axisY: {
+            title: "Measurement (hz)",
             minimum: -1,
             maximum: 2.0,
             interval: 0.25,
@@ -33,12 +31,23 @@ class Chart2 extends Component {
           },
           data: [
             {
-              type: "spline",
-              dataPoints: this.props.data,
+              type: "scatter",
+              markerSize: 8,
+              toolTipContent: "{x} s: {y} hz, Annotation: {label}",
+              dataPoints: this.props.annotations,
+              color: "green",
             },
             {
               type: "scatter",
               dataPoints: this.props.predictData,
+              // Doesn't actually work :(
+              indexLabelOrientation: "horizontal",
+            },
+            {
+              type: "spline",
+              toolTipContent: "{x} s: {y} hz",
+              dataPoints: this.props.data,
+              color: "#4F81BC",
             },
           ],
         },
