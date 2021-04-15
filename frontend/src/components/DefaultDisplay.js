@@ -77,8 +77,6 @@ export default function Sample() {
 
   // TODO: Need to implement a component that picks up time range so that the user can query a specific time slot.
   //       (Currently hard-coded to pick up all data from all the time in the database)
-  // TODO: Need to implement a better component that queries the db on the possible list of patients and allow the user
-  //       to select the user using a drop-down
 
   // Data State
   const [dataPoint, setDataPoint] = useState({});
@@ -312,14 +310,12 @@ export default function Sample() {
     Object.keys(dataPoint).length === 0 &&
     dataPoint.constructor === Object
   ) {
-    // Save all signal datapoints
+    // Save all signal data points
     setDataPoint({ ...updateGraph(sigData) });
   } else {
     // Query made, render graph
 
     let signals = dataPoint;
-    // console.log(dataPoint);
-    // console.log(sigData);
     let predictions = updatePredictAnnotations(
       sigData,
       ML2predictData,
