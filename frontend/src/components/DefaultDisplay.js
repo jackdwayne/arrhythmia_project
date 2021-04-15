@@ -177,7 +177,8 @@ export default function Sample() {
     for (i; i < signals.length; i++) {
       MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
       V5datapoints.push(createData(signals[i].time, signals[i].v5));
-      if (signals[i].annotation !== null) {
+      // DB for annotation may be either null (older version) or '' (newer version)
+      if (signals[i].annotation !== null && signals[i].annotation !== "") {
         mliiFoundAnnotations.push({
           x: signals[i].time,
           y: signals[i].mlii,
@@ -468,7 +469,7 @@ export default function Sample() {
               </Paper>
             </Grid>
             <Grid item xs={12}>
-              <Grid container spacing={2}>
+              <Grid container spacing={2} direction="column">
                 <Grid item>
                   <PatientTable
                     patientID={patientNumber}
