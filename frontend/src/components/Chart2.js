@@ -22,7 +22,7 @@ class Chart2 extends PureComponent {
           axisY: {
             title: "Measurement (hz)",
             minimum: -1,
-            maximum: 2.0,
+            maximum: 2.5,
             interval: 0.25,
             crosshair: {
               enabled: true,
@@ -54,8 +54,8 @@ class Chart2 extends PureComponent {
       ],
       rangeSelector: {
         inputFields: {
-          startValue: this.props.data[0].time,
-          endValue: this.props.data[1800].time,
+          // startValue: this.props.data[0].time,
+          // endValue: this.props.data[1800].time,
           valueFormatString: "###0",
         },
 

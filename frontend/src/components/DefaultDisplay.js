@@ -95,8 +95,11 @@ export default function Sample() {
     "/?format=json&signal_record_name="
   );
   const [patientListPath, setPatientListPath] = useState("/?format=json");
-  const [start, setStart] = useState(0);
-  const [end, setEnd] = useState(0);
+  const [start, setStart] = useState("0");
+  const [end, setEnd] = useState("60");
+  const [jumpStart, setJumpStart] = useState("0");
+  const [jumpEnd, setJumpEnd] = useState("60");
+
 
   // Styling
   const [mlData, setMlData] = useState(0);
@@ -114,7 +117,8 @@ export default function Sample() {
       fetchMore,
     },
   ] = useLazyQuery(signalQuery, {
-    variables: { qPath: queryPath.concat(String(patientNumber)) },
+    variables: { qPath: queryPath.concat(String(patientNumber).concat('&start=').concat(start).concat("&end=").concat(end)) },
+    onCompleted: sigData => setDataPoint(updateGraph(sigData))
   });
 
   // State that handles queries for predictions on annotations from ML backend
@@ -247,16 +251,19 @@ export default function Sample() {
 
   const handleAnnotationSliceStart = (event) => {
     event.preventDefault();
+    setStart(jumpStart);
+    setEnd(jumpEnd);
+    loadGraphs();
   };
 
   const startChangeHandler = (event) => {
-    let start = event.target.value;
-    setStart(parseInt(start, 10));
+    event.preventDefault();
+    setJumpStart(event.target.value);
   };
 
   const endChangeHandler = (event) => {
-    let end = event.target.value;
-    setEnd(parseInt(end, 10));
+    event.preventDefault();
+    setJumpEnd(event.target.value);
   };
 
   //did mount or updated
@@ -372,20 +379,20 @@ export default function Sample() {
         </div>
         <br />
         <form style={{}} onSubmit={handleAnnotationSliceStart}>
-          <p>Range to generate annotations between</p>
+          <p>Get time slice of data and ML annotations</p>
           <label>Start: </label>
           <input
             type="text"
             name="startTime"
             style={{ width: 60 }}
-            onBlur={startChangeHandler}
+            onChange={startChangeHandler}
           />
           <label>End: </label>
           <input
             type="text"
             name="endTime"
             style={{ width: 60 }}
-            onBlur={endChangeHandler}
+            onChange={endChangeHandler}
           />
           <br />
           <input type="submit" style={{ margin: 10 }} />
