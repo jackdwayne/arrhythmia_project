@@ -1,6 +1,7 @@
 import React from "react";
 import { Component, ProgressBar } from "react";
 import axios from "axios"
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 export class AddUser extends Component{
   
@@ -14,6 +15,8 @@ export class AddUser extends Component{
   state = {
     selectedFiles: null,
     loading: false,
+    doneInserting: false,
+    errorInserting: false,
   }
   
   componentDidMount = () => {
@@ -36,11 +39,10 @@ export class AddUser extends Component{
 
   
 
-  fileInputButton(event) {
+  fileInputButton() {
     let currentFiles = this.state.selectedFiles;
     if(currentFiles){
       let formData = new FormData();
-      console.log("\nhere" + currentFiles + " current file shouold be before")
       for (let i = 0; i < currentFiles.length; i++) {
   
         console.log("i: " + i.toString())
@@ -63,24 +65,52 @@ export class AddUser extends Component{
             console.log(res.data);
             this.setState( {
               loading: false, 
+              doneInserting: true,
+              errorInserting: false,
+              selectedFiles: null,
             })  
           })
-          .catch(err => console.log('Response body', err))
+          .catch(err => {
+            console.log('Response body', err); 
+            this.setState( {
+              loading: false, 
+              doneInserting: false,
+              errorInserting: true,
+              selectedFiles: null,
+            })
+          })
           
         }
   }
 
-  checkLoading(props){
+  checkLoading(){
+
     let isloading = this.state.loading;
-    console.log("\nisloading\n");
-    console.log(isloading);
-    if(isloading == true){
-      return <h2>Currently Inserting Data Into Database....</h2>;
+    let isDoneInserting = this.state.doneInserting;
+    let errorInsert = this.state.errorInserting;
+
+    if(isloading === true){
+      return (
+        <div>
+          <h2>Currently Inserting Data Into Database....</h2>
+            <div>
+              <LinearProgress style={{backgroundColor:"black"}}/>
+              <LinearProgress style={{backgroundColor:"white"}} />
+            </div>
+        </div> 
+      );
+    }
+    if(isDoneInserting === true){
+      return <h2>Done Inserting Patient Data</h2>;
+    }
+    if(errorInsert === true){
+      return <h2>Error Inserting Patient Data</h2>;
     }
     else{
-      return <h1></h1>;
+      return <h2></h2>;
     }
   }
+
   
   render(){
     return(
