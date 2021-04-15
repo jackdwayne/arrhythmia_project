@@ -1,4 +1,3 @@
-# Noah Jackson
 # Formatting and inserting MIT Data into database
 
 import wfdb
@@ -26,7 +25,6 @@ class dataParser(object):
     def start(self, filePath, file):
         tempDir = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/'
         fileNameNoExtension = file._name.split('.')[0]  
-        #print("\nIN DATAPARSER tempDir: %s\nfile path is: %s\nfileNameNoExtension: %s\n" % (tempDir, filePath, fileNameNoExtension))
         dataParser.getData(self, fileNameNoExtension, tempDir)
        
 
@@ -54,11 +52,6 @@ class dataParser(object):
         # will hold time series data for patient signal and mv
         p_signal_time = []
         signal_name = ""
-        
-        patientColumnNames = ["record_name", "n_sig", "fs", "counter_freq", "base_counter", "sig_len", "base_time", "base_date",
-                    "comments", "sig_name", "d_signal", "e_p_signal", "file_name", "fmt", "samps_per_frame",
-                    "skew", "byte_offset", "adc_gain", "baseline", "units", "adc_res", "adc_zero", "init_value",
-                    "checksum", "block_size", "has_annotations"]
   
         # iterate through attributes
         for attr in attributes:
@@ -145,10 +138,9 @@ class dataParser(object):
                 formatted_patient_DF['block_size'].values[0] = getattr(record, attr)
 
 
-        patAttrFilePath = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/' + 'All_Attributes_' + recordValue + '.csv'
         timeDF = dataParser.extractTimeData(self, p_signal_time, signal_name, recordValue)
         dataParser.extractAnnotations(self, filePath, timeDF, fileNameNoExtension)
-        dataParser.writePatientCSV(self, formatted_patient_DF, recordValue, 'All_Attributes_')
+        dataParser.writePatientCSV(self, formatted_patient_DF, recordValue, 'All_Attributes_', 0)
         dataParser.insertInDatabase(self, filePath, fileNameNoExtension)
 
 
@@ -199,7 +191,7 @@ class dataParser(object):
         # Insert attribute data into patientdb_signals table 
         try:
             print("\ninserting patient %s's signal data into patientdb_signals...............\n" % recordNum)
-            dbCursor.copy_from(signalFileData, "patientdb_signals", columns=signalAttributes, sep="|")
+            dbCursor.copy_from(signalFileData, "patientdb_signals", columns=signalAttributes, sep=",")
             dbConn.commit()
 
         # Check for errors inserting signal data 
@@ -218,7 +210,7 @@ class dataParser(object):
 
         # get specific record from MIT data set
         ann = wfdb.rdann(newFilePath, 'atr')
-
+        
         # get all attributes of record object and store in attributes
         attributes = vars(ann)
 
@@ -238,7 +230,7 @@ class dataParser(object):
             
             dfCounter += 1
 
-        dataParser.writePatientCSV(self, timeDF, recordNumber, "TimeData_")
+        dataParser.writePatientCSV(self, timeDF, recordNumber, "TimeData_", 1)
 
 
     def extractTimeData(self, p_signal_time, signal_name, record_value):
@@ -283,7 +275,7 @@ class dataParser(object):
         return df_columns
 
 
-    def writePatientCSV(self, patientData_DF, rec_num, fileName):
+    def writePatientCSV(self, patientData_DF, rec_num, fileName, signalOrPatient):
 
         # getting current working directory where patient data will be written
         tempDir = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/'
@@ -291,8 +283,15 @@ class dataParser(object):
         # filename
         ptFormattedFile = tempDir + fileName + str(rec_num) + ".csv"
 
-        # write formatted patient data to new csv file
-        patientData_DF.to_csv(ptFormattedFile, sep='|', encoding='utf-8', index=False, header=False, quoting=0)
+        # when signalOrPatient is equal to 1, then it is the signal data frame so use comma as delimiter 
+        if signalOrPatient == 1:
+            # write formatted patient data to new csv file
+            patientData_DF.to_csv(ptFormattedFile, sep=',', encoding='utf-8', index=False, header=False, quoting=0)
+
+        # when signalOrPatient is equal to 0, then it is the patient attributes data frame so use | as delimiter
+        if signalOrPatient == 0:
+            # write formatted signal data to new csv file
+            patientData_DF.to_csv(ptFormattedFile, sep='|', encoding='utf-8', index=False, header=False, quoting=0)
 
 
     
