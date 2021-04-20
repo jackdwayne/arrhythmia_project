@@ -80,8 +80,8 @@ export default function Sample() {
 
   // Data State
   const [dataPoint, setDataPoint] = useState({});
-  const [predictedAnnotation, setPredictedAnnotation] = useState({});
-
+  const [predictedAnnotationML2, setPredictedAnnotationML2] = useState({});
+  const [predictedAnnotationV5, setPredictedAnnotationV5] = useState({});
   // Selection states
   const [displayPatientNumber, setDisplayPatientNumber] = useState("");
   const [patientNumber, setPatientNumber] = useState("");
@@ -132,10 +132,10 @@ export default function Sample() {
     },
   ] = useLazyQuery(predictQuery, {
     variables: {
-      pPath: predictionPath
-        .concat(String(displayPatientNumber))
-        .concat("&lead=mlii&start=0&end=1805"),
+      pPath: queryPath.concat(String(patientNumber).concat('&start=').concat(start).concat("&end=").concat(end).concat('&lead=mlii')),
     },
+    onCompleted: ML2predictData => setPredictedAnnotationML2(updatePredictAnnotationsML2(ML2predictData
+    ))
   });
 
   // State that handles queries for predictions on annotations from ML backend
@@ -149,10 +149,9 @@ export default function Sample() {
     },
   ] = useLazyQuery(predictQuery, {
     variables: {
-      pPath: predictionPath
-        .concat(String(displayPatientNumber))
-        .concat("&lead=v5&start=0&end=1805"),
+      pPath: queryPath.concat(String(patientNumber).concat('&start=').concat(start).concat("&end=").concat(end).concat('&lead=v5')),
     },
+    onCompleted: V5predictData => setPredictedAnnotationV5(updatePredictAnnotationsV5(V5predictData))
   });
 
   // State that handles queries for list of patients
@@ -201,38 +200,45 @@ export default function Sample() {
     };
   }
 
-  function updatePredictAnnotations(sigData, ML2predictions, V5predictions) {
-    let signals = sigData.patient.results;
+  function updatePredictAnnotationsML2(ML2predictions) {
+
     let startTime = start;
     let endTime = end;
-    if (!start && !end) {
-      // setStart(signals[0].time);
-      // setEnd(Math.ceil(signals[signals.length - 1].time));
-      startTime = signals[0].time;
-      endTime = Math.ceil(signals[signals.length - 1].time);
-    }
+
 
     let MLIIPredictions = [];
-    let V5Predictions = [];
     let i = startTime + 0.5;
     for (i; i < endTime; i++) {
       MLIIPredictions.push(
         createPredictAnnotation(i, ML2predictions.predict.results[i])
       );
+    }
+    return { ml2: MLIIPredictions };
+  }
+
+  function updatePredictAnnotationsV5(V5predictions) {
+    let startTime = start;
+    let endTime = end;
+
+    let V5Predictions = [];
+    let i = startTime + 0.5;
+    for (i; i < endTime; i++) {
       V5Predictions.push(
         createPredictAnnotation(i, V5predictions.predict.results[i])
       );
     }
-    return { ml2: MLIIPredictions, v5: V5Predictions };
+    return { v5: V5Predictions };
   }
 
   // Handler to set patient id
   const handleDisplayPatientSelect = (event) => {
+    event.preventDefault();
     setDisplayPatientNumber(event.target.value);
   };
 
   // Handler to update graph once selection is made post-startup
-  const handlePatientSelect = () => {
+  const handlePatientSelect = (event) => {
+    event.preventDefault();
     setPatientNumber(displayPatientNumber);
     setDataPoint({});
     loadGraphs();
@@ -240,28 +246,32 @@ export default function Sample() {
 
   // Handler to draw/update graph pre-startup
   const handlePatientSubmit = (displayPatientNumber) => {
+  
     if (displayPatientNumber !== "") {
       setPatientNumber(displayPatientNumber);
       setDataPoint({});
       loadGraphs();
       ML2loadPredictions();
       V5loadPredictions();
+
     }
   };
 
-  const handleAnnotationSliceStart = (event) => {
+  const handleAnnotationSliceStart =  (event) => {
     event.preventDefault();
     setStart(jumpStart);
     setEnd(jumpEnd);
     loadGraphs();
+    ML2loadPredictions();
+    V5loadPredictions();
   };
 
-  const startChangeHandler = (event) => {
+  const startChangeHandler =  (event) => {
     event.preventDefault();
     setJumpStart(event.target.value);
   };
 
-  const endChangeHandler = (event) => {
+  const endChangeHandler =  (event) => {
     event.preventDefault();
     setJumpEnd(event.target.value);
   };
@@ -323,11 +333,9 @@ export default function Sample() {
     // Query made, render graph
 
     let signals = dataPoint;
-    let predictions = updatePredictAnnotations(
-      sigData,
-      ML2predictData,
-      V5predictData
-    );
+    let predictionsML2 = predictedAnnotationML2;
+    let predictionsV5 = predictedAnnotationV5;
+
     // let predictions = predictedAnnotation;
 
     /* Processing patient data */
@@ -378,7 +386,7 @@ export default function Sample() {
           <button onClick={() => handlePatientSelect()}>Select Patient</button>
         </div>
         <br />
-        <form style={{}} onSubmit={handleAnnotationSliceStart}>
+        <form style={{}}>
           <p>Get time slice of data and ML annotations</p>
           <label>Start: </label>
           <input
@@ -394,8 +402,7 @@ export default function Sample() {
             style={{ width: 60 }}
             onChange={endChangeHandler}
           />
-          <br />
-          <input type="submit" style={{ margin: 10 }} />
+          <button onClick={e => handleAnnotationSliceStart(e)}>Select Slice</button>
         </form>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
@@ -411,7 +418,7 @@ export default function Sample() {
                 <Chart2
                   key={1}
                   data={signals.ml2}
-                  predictions={predictions.ml2}
+                  predictions={predictionsML2.ml2}
                   annotations={signals.ml2Annotations}
                 />
               </Paper>
@@ -427,9 +434,10 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
-                    predictions = updatePredictAnnotations(
-                      sigData,
+                    predictionsML2 = updatePredictAnnotationsML2(
                       ML2predictData,
+                    );
+                    predictionsV5 = updatePredictAnnotationsV5(
                       V5predictData
                     );
                   }}
@@ -449,9 +457,10 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
-                    predictions = updatePredictAnnotations(
-                      sigData,
+                    predictionsML2 = updatePredictAnnotationsML2(
                       ML2predictData,
+                    );
+                    predictionsV5 = updatePredictAnnotationsV5(
                       V5predictData
                     );
                   }}
@@ -466,7 +475,7 @@ export default function Sample() {
                 <Chart2
                   key={2}
                   data={signals.v5}
-                  predictions={predictions.v5}
+                  predictions={predictionsV5.v5}
                   annotations={signals.v5Annotations}
                 />
               </Paper>
