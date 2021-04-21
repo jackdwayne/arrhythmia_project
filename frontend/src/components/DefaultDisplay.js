@@ -238,7 +238,6 @@ export default function Sample() {
 
   // Handler to update graph once selection is made post-startup
   const handlePatientSelect = (event) => {
-    event.preventDefault();
     setPatientNumber(displayPatientNumber);
     setDataPoint({});
     loadGraphs();
@@ -258,7 +257,6 @@ export default function Sample() {
   };
 
   const handleAnnotationSliceStart =  (event) => {
-    event.preventDefault();
     setStart(jumpStart);
     setEnd(jumpEnd);
     loadGraphs();
