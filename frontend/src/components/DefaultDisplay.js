@@ -8,7 +8,7 @@ import Paper from "@material-ui/core/Paper";
 import PatientTable from "./Patient";
 import Title from "./Title";
 import { useLazyQuery } from "@apollo/client";
-import Chart2 from "./Chart2";
+import Chart from "./Chart";
 import { Button, MenuItem, Select } from "@material-ui/core";
 import {
   signalQuery,
@@ -423,7 +423,7 @@ export default function Sample() {
               <input label="Start" onChange={setStart(this.value)}></input>
               <
             </form> */}
-                <Chart2
+                <Chart
                   key={1}
                   data={signals.ml2}
                   predictions={predictionsML2.ml2}
@@ -476,7 +476,7 @@ export default function Sample() {
               <Divider />
               <Paper>
                 <Typography variant="h4">V5</Typography>
-                <Chart2
+                <Chart
                   key={2}
                   data={signals.v5}
                   predictions={predictionsV5.v5}
