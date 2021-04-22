@@ -21,8 +21,8 @@ class Chart2 extends PureComponent {
           },
           axisY: {
             title: "Measurement (hz)",
-            minimum: -1,
-            maximum: 2.5,
+            minimum: parseFloat(this.props.min) - 0.25,
+            maximum: parseFloat(this.props.max) + 0.25,
             interval: 0.25,
             crosshair: {
               enabled: true,

@@ -6,7 +6,6 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import PatientTable from "./Patient";
-import Title from "./Title";
 import { useLazyQuery } from "@apollo/client";
 import Chart from "./Chart";
 import { Button, MenuItem, Select } from "@material-ui/core";
@@ -82,6 +81,9 @@ export default function Sample() {
   const [dataPoint, setDataPoint] = useState({});
   const [predictedAnnotationML2, setPredictedAnnotationML2] = useState({});
   const [predictedAnnotationV5, setPredictedAnnotationV5] = useState({});
+  const [maxSignal, setMaxSignal] = useState(0);
+  const [minSignal, setMinSignal] = useState(0);
+
   // Selection states
   const [displayPatientNumber, setDisplayPatientNumber] = useState("");
   const [patientNumber, setPatientNumber] = useState("");
@@ -101,7 +103,6 @@ export default function Sample() {
   const [jumpEnd, setJumpEnd] = useState("60");
 
   // Styling
-  const [mlData, setMlData] = useState(0);
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   // State that handles queries for signals
@@ -195,8 +196,11 @@ export default function Sample() {
     let mliiFoundAnnotations = [];
     let v5FoundAnnotations = [];
     let i = 0;
-    //setStart(signals[0].time);
-    //setEnd(Math.ceil(signals[signals.length - 1].time));
+    let MLIImaximum = 0;
+    let MLIIminimum = 1000000000000000;
+    let maximum = 0;
+    let minimum = 1000000000000000;
+
     for (i; i < signals.length; i++) {
       MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
       V5datapoints.push(createData(signals[i].time, signals[i].v5));
@@ -213,12 +217,22 @@ export default function Sample() {
           label: signals[i].annotation,
         });
       }
+      MLIImaximum =
+        MLIImaximum < signals[i].mlii ? signals[i].mlii : MLIImaximum;
+      MLIIminimum =
+        MLIIminimum > signals[i].mlii ? signals[i].mlii : MLIIminimum;
+      maximum = maximum < signals[i].v5 ? signals[i].v5 : maximum;
+      minimum = minimum > signals[i].v5 ? signals[i].v5 : minimum;
     }
     return {
       ml2: MLIIdatapoints,
       v5: V5datapoints,
       ml2Annotations: mliiFoundAnnotations,
       v5Annotations: v5FoundAnnotations,
+      ml2max: MLIImaximum,
+      ml2min: MLIIminimum,
+      max: maximum,
+      min: minimum,
     };
   }
 
@@ -428,6 +442,8 @@ export default function Sample() {
                   data={signals.ml2}
                   predictions={predictionsML2.ml2}
                   annotations={signals.ml2Annotations}
+                  max={signals.ml2max}
+                  min={signals.ml2min}
                 />
               </Paper>
               {sigData.patient.previous && (
@@ -481,6 +497,8 @@ export default function Sample() {
                   data={signals.v5}
                   predictions={predictionsV5.v5}
                   annotations={signals.v5Annotations}
+                  max={signals.max}
+                  min={signals.min}
                 />
               </Paper>
             </Grid>
