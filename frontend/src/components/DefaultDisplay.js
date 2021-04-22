@@ -6,9 +6,8 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import PatientTable from "./Patient";
-import Title from "./Title";
 import { useLazyQuery } from "@apollo/client";
-import Chart2 from "./Chart2";
+import Chart from "./Chart";
 import { Button, MenuItem, Select } from "@material-ui/core";
 import {
   signalQuery,
@@ -80,7 +79,10 @@ export default function Sample() {
 
   // Data State
   const [dataPoint, setDataPoint] = useState({});
-  const [predictedAnnotation, setPredictedAnnotation] = useState({});
+  const [predictedAnnotationML2, setPredictedAnnotationML2] = useState({});
+  const [predictedAnnotationV5, setPredictedAnnotationV5] = useState({});
+  const [maxSignal, setMaxSignal] = useState(0);
+  const [minSignal, setMinSignal] = useState(0);
 
   // Selection states
   const [displayPatientNumber, setDisplayPatientNumber] = useState("");
@@ -95,11 +97,12 @@ export default function Sample() {
     "/?format=json&signal_record_name="
   );
   const [patientListPath, setPatientListPath] = useState("/?format=json");
-  const [start, setStart] = useState(0);
-  const [end, setEnd] = useState(0);
+  const [start, setStart] = useState("0");
+  const [end, setEnd] = useState("60");
+  const [jumpStart, setJumpStart] = useState("0");
+  const [jumpEnd, setJumpEnd] = useState("60");
 
   // Styling
-  const [mlData, setMlData] = useState(0);
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   // State that handles queries for signals
@@ -114,7 +117,16 @@ export default function Sample() {
       fetchMore,
     },
   ] = useLazyQuery(signalQuery, {
-    variables: { qPath: queryPath.concat(String(patientNumber)) },
+    variables: {
+      qPath: queryPath.concat(
+        String(patientNumber)
+          .concat("&start=")
+          .concat(start)
+          .concat("&end=")
+          .concat(end)
+      ),
+    },
+    onCompleted: (sigData) => setDataPoint(updateGraph(sigData)),
   });
 
   // State that handles queries for predictions on annotations from ML backend
@@ -128,10 +140,17 @@ export default function Sample() {
     },
   ] = useLazyQuery(predictQuery, {
     variables: {
-      pPath: predictionPath
-        .concat(String(displayPatientNumber))
-        .concat("&lead=mlii&start=0&end=1805"),
+      pPath: queryPath.concat(
+        String(patientNumber)
+          .concat("&start=")
+          .concat(start)
+          .concat("&end=")
+          .concat(end)
+          .concat("&lead=mlii")
+      ),
     },
+    onCompleted: (ML2predictData) =>
+      setPredictedAnnotationML2(updatePredictAnnotationsML2(ML2predictData)),
   });
 
   // State that handles queries for predictions on annotations from ML backend
@@ -145,10 +164,17 @@ export default function Sample() {
     },
   ] = useLazyQuery(predictQuery, {
     variables: {
-      pPath: predictionPath
-        .concat(String(displayPatientNumber))
-        .concat("&lead=v5&start=0&end=1805"),
+      pPath: queryPath.concat(
+        String(patientNumber)
+          .concat("&start=")
+          .concat(start)
+          .concat("&end=")
+          .concat(end)
+          .concat("&lead=v5")
+      ),
     },
+    onCompleted: (V5predictData) =>
+      setPredictedAnnotationV5(updatePredictAnnotationsV5(V5predictData)),
   });
 
   // State that handles queries for list of patients
@@ -170,8 +196,11 @@ export default function Sample() {
     let mliiFoundAnnotations = [];
     let v5FoundAnnotations = [];
     let i = 0;
-    //setStart(signals[0].time);
-    //setEnd(Math.ceil(signals[signals.length - 1].time));
+    let MLIImaximum = 0;
+    let MLIIminimum = 1000000000000000;
+    let maximum = 0;
+    let minimum = 1000000000000000;
+
     for (i; i < signals.length; i++) {
       MLIIdatapoints.push(createData(signals[i].time, signals[i].mlii));
       V5datapoints.push(createData(signals[i].time, signals[i].v5));
@@ -188,47 +217,61 @@ export default function Sample() {
           label: signals[i].annotation,
         });
       }
+      MLIImaximum =
+        MLIImaximum < signals[i].mlii ? signals[i].mlii : MLIImaximum;
+      MLIIminimum =
+        MLIIminimum > signals[i].mlii ? signals[i].mlii : MLIIminimum;
+      maximum = maximum < signals[i].v5 ? signals[i].v5 : maximum;
+      minimum = minimum > signals[i].v5 ? signals[i].v5 : minimum;
     }
     return {
       ml2: MLIIdatapoints,
       v5: V5datapoints,
       ml2Annotations: mliiFoundAnnotations,
       v5Annotations: v5FoundAnnotations,
+      ml2max: MLIImaximum,
+      ml2min: MLIIminimum,
+      max: maximum,
+      min: minimum,
     };
   }
 
-  function updatePredictAnnotations(sigData, ML2predictions, V5predictions) {
-    let signals = sigData.patient.results;
-    let startTime = start;
-    let endTime = end;
-    if (!start && !end) {
-      // setStart(signals[0].time);
-      // setEnd(Math.ceil(signals[signals.length - 1].time));
-      startTime = signals[0].time;
-      endTime = Math.ceil(signals[signals.length - 1].time);
-    }
+  function updatePredictAnnotationsML2(ML2predictions) {
+    let startTime = parseInt(start);
+    let endTime = parseInt(end);
 
     let MLIIPredictions = [];
-    let V5Predictions = [];
     let i = startTime + 0.5;
     for (i; i < endTime; i++) {
       MLIIPredictions.push(
         createPredictAnnotation(i, ML2predictions.predict.results[i])
       );
+    }
+    return { ml2: MLIIPredictions };
+  }
+
+  function updatePredictAnnotationsV5(V5predictions) {
+    let startTime = parseInt(start);
+    let endTime = parseInt(end);
+
+    let V5Predictions = [];
+    let i = startTime + 0.5;
+    for (i; i < endTime; i++) {
       V5Predictions.push(
         createPredictAnnotation(i, V5predictions.predict.results[i])
       );
     }
-    return { ml2: MLIIPredictions, v5: V5Predictions };
+    return { v5: V5Predictions };
   }
 
   // Handler to set patient id
   const handleDisplayPatientSelect = (event) => {
+    event.preventDefault();
     setDisplayPatientNumber(event.target.value);
   };
 
   // Handler to update graph once selection is made post-startup
-  const handlePatientSelect = () => {
+  const handlePatientSelect = (event) => {
     setPatientNumber(displayPatientNumber);
     setDataPoint({});
     loadGraphs();
@@ -246,28 +289,22 @@ export default function Sample() {
   };
 
   const handleAnnotationSliceStart = (event) => {
-    event.preventDefault();
+    setStart(jumpStart);
+    setEnd(jumpEnd);
+    loadGraphs();
+    ML2loadPredictions();
+    V5loadPredictions();
   };
 
   const startChangeHandler = (event) => {
-    let start = event.target.value;
-    setStart(parseInt(start, 10));
+    event.preventDefault();
+    setJumpStart(event.target.value);
   };
 
   const endChangeHandler = (event) => {
-    let end = event.target.value;
-    setEnd(parseInt(end, 10));
+    event.preventDefault();
+    setJumpEnd(event.target.value);
   };
-
-  //did mount or updated
-
-  //const [next, setNext] = useState(0);
-
-  // handleStartChange => (event) => {
-  //     setStart(event.value)
-  // }
-  // handleEndChange => (event) => {
-  //   setStart(event.value)
 
   // Render Display Component
   if (!calledSig) {
@@ -316,11 +353,9 @@ export default function Sample() {
     // Query made, render graph
 
     let signals = dataPoint;
-    let predictions = updatePredictAnnotations(
-      sigData,
-      ML2predictData,
-      V5predictData
-    );
+    let predictionsML2 = predictedAnnotationML2;
+    let predictionsV5 = predictedAnnotationV5;
+
     // let predictions = predictedAnnotation;
 
     /* Processing patient data */
@@ -371,24 +406,25 @@ export default function Sample() {
           <button onClick={() => handlePatientSelect()}>Select Patient</button>
         </div>
         <br />
-        <form style={{}} onSubmit={handleAnnotationSliceStart}>
-          <p>Range to generate annotations between</p>
+        <form style={{}}>
+          <p>Get time slice of data and ML annotations</p>
           <label>Start: </label>
           <input
             type="text"
             name="startTime"
             style={{ width: 60 }}
-            onBlur={startChangeHandler}
+            onChange={startChangeHandler}
           />
           <label>End: </label>
           <input
             type="text"
             name="endTime"
             style={{ width: 60 }}
-            onBlur={endChangeHandler}
+            onChange={endChangeHandler}
           />
-          <br />
-          <input type="submit" style={{ margin: 10 }} />
+          <button onClick={(e) => handleAnnotationSliceStart(e)}>
+            Select Slice
+          </button>
         </form>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
@@ -401,11 +437,13 @@ export default function Sample() {
               <input label="Start" onChange={setStart(this.value)}></input>
               <
             </form> */}
-                <Chart2
+                <Chart
                   key={1}
                   data={signals.ml2}
-                  predictions={predictions.ml2}
+                  predictions={predictionsML2.ml2}
                   annotations={signals.ml2Annotations}
+                  max={signals.ml2max}
+                  min={signals.ml2min}
                 />
               </Paper>
               {sigData.patient.previous && (
@@ -420,11 +458,10 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
-                    predictions = updatePredictAnnotations(
-                      sigData,
-                      ML2predictData,
-                      V5predictData
+                    predictionsML2 = updatePredictAnnotationsML2(
+                      ML2predictData
                     );
+                    predictionsV5 = updatePredictAnnotationsV5(V5predictData);
                   }}
                 >
                   Load Previous
@@ -442,11 +479,10 @@ export default function Sample() {
                         return fetchMoreResult;
                       },
                     });
-                    predictions = updatePredictAnnotations(
-                      sigData,
-                      ML2predictData,
-                      V5predictData
+                    predictionsML2 = updatePredictAnnotationsML2(
+                      ML2predictData
                     );
+                    predictionsV5 = updatePredictAnnotationsV5(V5predictData);
                   }}
                 >
                   Load Next
@@ -456,11 +492,13 @@ export default function Sample() {
               <Divider />
               <Paper>
                 <Typography variant="h4">V5</Typography>
-                <Chart2
+                <Chart
                   key={2}
                   data={signals.v5}
-                  predictions={predictions.v5}
+                  predictions={predictionsV5.v5}
                   annotations={signals.v5Annotations}
+                  max={signals.max}
+                  min={signals.min}
                 />
               </Paper>
             </Grid>
