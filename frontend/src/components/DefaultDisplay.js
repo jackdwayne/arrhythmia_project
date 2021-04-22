@@ -100,7 +100,6 @@ export default function Sample() {
   const [jumpStart, setJumpStart] = useState("0");
   const [jumpEnd, setJumpEnd] = useState("60");
 
-
   // Styling
   const [mlData, setMlData] = useState(0);
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
@@ -117,8 +116,16 @@ export default function Sample() {
       fetchMore,
     },
   ] = useLazyQuery(signalQuery, {
-    variables: { qPath: queryPath.concat(String(patientNumber).concat('&start=').concat(start).concat("&end=").concat(end)) },
-    onCompleted: sigData => setDataPoint(updateGraph(sigData))
+    variables: {
+      qPath: queryPath.concat(
+        String(patientNumber)
+          .concat("&start=")
+          .concat(start)
+          .concat("&end=")
+          .concat(end)
+      ),
+    },
+    onCompleted: (sigData) => setDataPoint(updateGraph(sigData)),
   });
 
   // State that handles queries for predictions on annotations from ML backend
@@ -132,10 +139,17 @@ export default function Sample() {
     },
   ] = useLazyQuery(predictQuery, {
     variables: {
-      pPath: queryPath.concat(String(patientNumber).concat('&start=').concat(start).concat("&end=").concat(end).concat('&lead=mlii')),
+      pPath: queryPath.concat(
+        String(patientNumber)
+          .concat("&start=")
+          .concat(start)
+          .concat("&end=")
+          .concat(end)
+          .concat("&lead=mlii")
+      ),
     },
-    onCompleted: ML2predictData => setPredictedAnnotationML2(updatePredictAnnotationsML2(ML2predictData
-    ))
+    onCompleted: (ML2predictData) =>
+      setPredictedAnnotationML2(updatePredictAnnotationsML2(ML2predictData)),
   });
 
   // State that handles queries for predictions on annotations from ML backend
@@ -149,9 +163,17 @@ export default function Sample() {
     },
   ] = useLazyQuery(predictQuery, {
     variables: {
-      pPath: queryPath.concat(String(patientNumber).concat('&start=').concat(start).concat("&end=").concat(end).concat('&lead=v5')),
+      pPath: queryPath.concat(
+        String(patientNumber)
+          .concat("&start=")
+          .concat(start)
+          .concat("&end=")
+          .concat(end)
+          .concat("&lead=v5")
+      ),
     },
-    onCompleted: V5predictData => setPredictedAnnotationV5(updatePredictAnnotationsV5(V5predictData))
+    onCompleted: (V5predictData) =>
+      setPredictedAnnotationV5(updatePredictAnnotationsV5(V5predictData)),
   });
 
   // State that handles queries for list of patients
@@ -201,10 +223,8 @@ export default function Sample() {
   }
 
   function updatePredictAnnotationsML2(ML2predictions) {
-
-    let startTime = start;
-    let endTime = end;
-
+    let startTime = parseInt(start);
+    let endTime = parseInt(end);
 
     let MLIIPredictions = [];
     let i = startTime + 0.5;
@@ -217,8 +237,8 @@ export default function Sample() {
   }
 
   function updatePredictAnnotationsV5(V5predictions) {
-    let startTime = start;
-    let endTime = end;
+    let startTime = parseInt(start);
+    let endTime = parseInt(end);
 
     let V5Predictions = [];
     let i = startTime + 0.5;
@@ -245,18 +265,16 @@ export default function Sample() {
 
   // Handler to draw/update graph pre-startup
   const handlePatientSubmit = (displayPatientNumber) => {
-  
     if (displayPatientNumber !== "") {
       setPatientNumber(displayPatientNumber);
       setDataPoint({});
       loadGraphs();
       ML2loadPredictions();
       V5loadPredictions();
-
     }
   };
 
-  const handleAnnotationSliceStart =  (event) => {
+  const handleAnnotationSliceStart = (event) => {
     setStart(jumpStart);
     setEnd(jumpEnd);
     loadGraphs();
@@ -264,25 +282,15 @@ export default function Sample() {
     V5loadPredictions();
   };
 
-  const startChangeHandler =  (event) => {
+  const startChangeHandler = (event) => {
     event.preventDefault();
     setJumpStart(event.target.value);
   };
 
-  const endChangeHandler =  (event) => {
+  const endChangeHandler = (event) => {
     event.preventDefault();
     setJumpEnd(event.target.value);
   };
-
-  //did mount or updated
-
-  //const [next, setNext] = useState(0);
-
-  // handleStartChange => (event) => {
-  //     setStart(event.value)
-  // }
-  // handleEndChange => (event) => {
-  //   setStart(event.value)
 
   // Render Display Component
   if (!calledSig) {
@@ -400,7 +408,9 @@ export default function Sample() {
             style={{ width: 60 }}
             onChange={endChangeHandler}
           />
-          <button onClick={e => handleAnnotationSliceStart(e)}>Select Slice</button>
+          <button onClick={(e) => handleAnnotationSliceStart(e)}>
+            Select Slice
+          </button>
         </form>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
@@ -433,11 +443,9 @@ export default function Sample() {
                       },
                     });
                     predictionsML2 = updatePredictAnnotationsML2(
-                      ML2predictData,
+                      ML2predictData
                     );
-                    predictionsV5 = updatePredictAnnotationsV5(
-                      V5predictData
-                    );
+                    predictionsV5 = updatePredictAnnotationsV5(V5predictData);
                   }}
                 >
                   Load Previous
@@ -456,11 +464,9 @@ export default function Sample() {
                       },
                     });
                     predictionsML2 = updatePredictAnnotationsML2(
-                      ML2predictData,
+                      ML2predictData
                     );
-                    predictionsV5 = updatePredictAnnotationsV5(
-                      V5predictData
-                    );
+                    predictionsV5 = updatePredictAnnotationsV5(V5predictData);
                   }}
                 >
                   Load Next
