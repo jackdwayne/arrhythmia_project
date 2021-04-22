@@ -19,8 +19,9 @@ Main components of patientdb app:
 
 ## Restful API
 Django handles url endpoints by assigning them views (custom vies can be defined in views.py), which can contain 
-functions to handle specific HTTP requests (e.g. GET, POST, HEAD, etc.), possibly by querying the database that 
-the Django server is connected to and/or processing said query and returning the results as a HTTP response.
+functions named after various HTTP request types (e.g. GET, POST, HEAD, etc.) that handle said requests, 
+possibly by querying the database that the Django server is connected to and/or processing said query and returning 
+the results as a HTTP response.
 
 ## Working With Machine Learning Model
 This app is currently capable of interacting with one machine learning model, which is contained in the 
