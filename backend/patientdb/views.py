@@ -25,18 +25,21 @@ import shutil
 class UploadedFileViewSet(APIView):
 
     serializer_class = UploadSerializer
-    
+
     def post(self, request):
-        
-        # serialize file data 
+
+        # serialize file data
         serializer = UploadSerializer(data=request.data)
-        # validate file 
+
+        # validate file
         serializer.is_valid(raise_exception=True)
-        # get file object 
-        #file = request.FILES
-        tempDir = str(pathlib.Path().absolute()) + '/temp_uploaded_patient_data/'
+
+        # get file object
+        file = request.FILES
+        tempDir = str(pathlib.Path().absolute()) + \
+            '/temp_uploaded_patient_data/'
         os.mkdir(tempDir)
-        fileName = ""        
+        fileName = ""
         for f in request.FILES.getlist('file'):
             fileName = f
             fileDestination = tempDir + '/' + f._name
@@ -44,22 +47,19 @@ class UploadedFileViewSet(APIView):
             destination = open(fileDestination, 'wb+')
             for chunk in f.chunks():
                 destination.write(chunk)
-            destination.close()           
+            destination.close()
 
-        #print("\nfilename: %s\n" % fileName)
-        # start patRecFormatter to parse data using wfdb library (wave form database) 
+        # start patRecFormatter to parse data using wfdb library (wave form database)
         dataParser.start(self, tempDir, fileName)
-        
-        # delete temp directory and all of its contents 
-        '''try:
+
+        # delete temp directory and all of its contents
+        try:
             shutil.rmtree(tempDir)
         except OSError as e:
-            print ("Error: %s - %s." % (e.filename, e.strerror))'''
-        
+            print("Error: %s - %s." % (e.filename, e.strerror))
+
         return Response(serializer.data)
 
-        
-    
 
 class SignalsViewSet(viewsets.ModelViewSet):
     """
@@ -128,7 +128,7 @@ class Predict_Signals(APIView):
         get implements the GET request for the ML view, returns a list of 
         predicted annotations.
         """
-        #TODO: Current get request accpets one model, as given by the sponsor. 
+        # TODO: Current get request accpets one model, as given by the sponsor.
         #      Later, when the next model is given, integrate it here
 
         # Extract required params
@@ -137,15 +137,18 @@ class Predict_Signals(APIView):
         patient_id = int(request.GET['signal_record_name'])
         lead_type = request.GET['lead']
 
+        if end == 0:
+            return Response({"results": {}}, status=200)
+
         # Specifying parameters and classification for the model
         WINDOW_SIZE = 360
         TIME_STEP = 1
         EPOCHS = 1
-        CHANNEL = 'MLII'
+        CHANNEL = lead_type.upper()
         CLASSIFICATION = {' ': 0, 'N': 1, '"': 2, 'A': 3, 'E': 4, 'F': 5, 'J': 6, 'L': 7, '!': 8, 'Q': 9,
                           'R': 10, 'S': 11, 'V': 12, 'Z': 13, '[': 14, ']': 15, 'a': 16, 'e': 17, 'f': 18, 'j': 19}
 
-        # Current location of the model given 
+        # Current location of the model given
         # TODO: might need to refactor to hardcode whole name
         local_dir = os.path.abspath('') + "/patientdb/LSTM_Classification" + \
             "/LSTM_RW_Classification_" + \
@@ -175,6 +178,7 @@ class Predict_Signals(APIView):
 
         # Map annotations to their time slot, each annotation is mapped in the
         # middle between the two time slices given into the ML model
+        tempDict = {}
         mapped_annotation = {}
         prev = start
         j = 0
@@ -186,4 +190,5 @@ class Predict_Signals(APIView):
             prev = i
             j += 1
         # Return response if classification found
-        return Response(mapped_annotation, status=200)
+        tempDict["results"] = mapped_annotation
+        return Response(tempDict, status=200)

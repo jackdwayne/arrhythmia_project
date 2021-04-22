@@ -13,7 +13,6 @@ class Patient(models.Model):
     base_date = models.CharField(max_length=1000, blank=True, null=True)
     comments = models.CharField(max_length=1000, blank=True, null=True) 
     sig_name = models.CharField(max_length=1000, blank=True, null=True) 
-    #p_signal = models.CharField(max_length=1000, blank=True, null=True) 
     d_signal = models.CharField(max_length=1000, blank=True, null=True) 
     e_p_signal = models.CharField(max_length=1000, blank=True, null=True) 
     file_name = models.CharField(max_length=1000, blank=True, null=True) 
@@ -29,7 +28,7 @@ class Patient(models.Model):
     init_value = models.CharField(max_length=1000, blank=True, null=True)       
     checksum = models.CharField(max_length=1000, blank=True, null=True) 
     block_size = models.CharField(max_length=1000, blank=True, null=True)
-    has_annotations = models.BooleanField(default=False, blank=True, null=True)
+    has_annotations = models.CharField(max_length=1000, blank=True, null=True)
     def __int__(self):
         return self.record_name
 

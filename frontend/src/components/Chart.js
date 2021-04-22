@@ -1,66 +1,104 @@
-import React, { Component } from "react";
+/* App.js */
+import React, { PureComponent } from "react";
+import CanvasJSReact from "./canvasjs.stock.react";
+var CanvasJS = CanvasJSReact.CanvasJS;
+var CanvasJSStockChart = CanvasJSReact.CanvasJSStockChart;
 
-import {
-  LineChart,
-  Brush,
-  Line,
-  XAxis,
-  YAxis,
-  Label,
-  ResponsiveContainer,
-  CartesianGrid,
-  ReferenceLine,
-} from "recharts";
-
-function createAnnotations(beats, annotations) {
-  const items = [];
-  for (let i = 0; i < beats.length; i++) {
-    items.push(
-      <ReferenceLine x={beats[i]} stroke="green" label={annotations[i]} />
-    );
-  }
-  return <div>{items}</div>;
-}
-
-export default class Chart extends Component {
+class Chart2 extends PureComponent {
   render() {
-    return (
-      <React.Fragment>
-        <ResponsiveContainer>
-          <LineChart
-            data={this.props.data}
-            margin={{
-              top: 16,
-              right: 16,
-              bottom: 0,
-              left: 24,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
+    const options = {
+      animationEnabled: true,
+      exportEnabled: true,
+      charts: [
+        {
+          axisX: {
+            title: "Time (s)",
+            crosshair: {
+              enabled: true,
+              snapToDataPoint: true,
+            },
+            stripLines: this.props.predictions,
+          },
+          axisY: {
+            title: "Measurement (hz)",
+            minimum: parseFloat(this.props.min) - 0.25,
+            maximum: parseFloat(this.props.max) + 0.25,
+            interval: 0.25,
+            crosshair: {
+              enabled: true,
+              //snapToDataPoint: true
+            },
+          },
+          data: [
             {
-              createAnnotations(this.props.beats, this.props.annotations).props
-                .children
-            }
-            <XAxis dataKey="time" stroke={"blue"} />
-            <YAxis stroke={"green"}>
-              <Label
-                angle={270}
-                position="left"
-                style={{ textAnchor: "middle", fill: "blue" }}
-              >
-                milliVolt (mV)
-              </Label>
-            </YAxis>
-            <Line
-              type="monotone"
-              dataKey="amount"
-              stroke={"green"}
-              dot={false}
-            />
-            <Brush dataKey="time" height={15} stroke="#8884d8" />
-          </LineChart>
-        </ResponsiveContainer>
-      </React.Fragment>
+              type: "scatter",
+              markerSize: 8,
+              toolTipContent: "{x} s: {y} hz, Annotation: {label}",
+              dataPoints: this.props.annotations,
+              color: "green",
+            },
+            {
+              type: "scatter",
+              dataPoints: this.props.predictData,
+              // Doesn't actually work :(
+              indexLabelOrientation: "horizontal",
+            },
+            {
+              type: "spline",
+              toolTipContent: "{x} s: {y} hz",
+              dataPoints: this.props.data,
+              color: "#4F81BC",
+            },
+          ],
+        },
+      ],
+      rangeSelector: {
+        inputFields: {
+          // startValue: this.props.data[0].time,
+          // endValue: this.props.data[1800].time,
+          valueFormatString: "###0",
+        },
+
+        buttons: [
+          {
+            label: "5",
+            range: 5,
+            rangeType: "number",
+          },
+          {
+            label: "10",
+            range: 10,
+            rangeType: "number",
+          },
+          {
+            label: "20",
+            range: 20,
+            rangeType: "number",
+          },
+          {
+            label: "All",
+            rangeType: "all",
+          },
+        ],
+      },
+    };
+    const containerProps = {
+      width: "100%",
+      height: "450px",
+      margin: "auto",
+    };
+    return (
+      <div>
+        <div>
+          <CanvasJSStockChart
+            containerProps={containerProps}
+            options={options}
+            /* onRef = {ref => this.chart = ref} */
+          />
+        </div>
+      </div>
     );
   }
 }
+
+export default Chart2;
