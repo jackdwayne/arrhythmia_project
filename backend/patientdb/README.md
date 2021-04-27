@@ -8,6 +8,8 @@ Main components of patientdb app:
         python3 manage.py makemigrations
         python3 manage.py migrate
     Depending on the significance of the changes, the database may need to remade before applying migrations.
+    The file 'Arrythimias ERD Diagram.pdf' contains both the current state of the models and our recommendations
+    for changing the models in the future to accomodate additional features.
 - serializers.py
     Handles the pagination of querying patient signal data for faster and more responsive output in the frontend.
 - urls.py
