@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## How to Use
 
-The run the app, follow the instructions under the section [Action Scripts](#available-scripts).
+To run the app, follow the instructions under the section [Action Scripts](#available-scripts).
 
 Once the web page has loaded, the dashboard will be present with a dropdown menu containing all available data records that users can view. Select a patient number and click the submit button.
 
