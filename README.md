@@ -8,23 +8,16 @@ For CS side, the requirements are: 1)Develop a data analysis software which a.vi
 The team can work on the MIT open source dataset (https://physionet.org/content/mitdb/1.0.0/) to getstarted, before our data becomes available from Rowan collaborators. 
 
 ## Setup:
-    ##### Virtual environment setup:
-    sudo apt-get install python3-venv
-    python3 -m venv mypthonenv
-    source mypythonenv/bin/activate
-    pip3 install django djangorestframework django-filter django-rest-auth django-cors-headers psycopg2-binary pandas scikit-learn joblib gunicorn django-debug-toolbar
+    1) INSTALL YOUR TOOLS:
 
-    Install backend:
-        cd to /backend/django_app
-        pip install requirements.txt
-    ###### Install Python:
+    Install Python:
         Windows:
         > https://www.python.org/downloads/
         Ubuntu:
         >$ sudo apt install python3
         >$ python ––version
 
-    ###### Install Node.JS:
+    Install Node.JS:
         Windows:
         > https://nodejs.org/en/download/
         > install with the downloaded windows installer
@@ -34,33 +27,46 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
         >$ sudo apt install npm
         >$ nodejs -v
 
-    ###### Install Django:
+    Install Django:
         Windows:
         >$ py -m pip install Django
         Make sure to update path variables to run the djando-admin script
         Ubuntu:
         >$ sudo apt install python3-django
 
-        Other installs:
-        >$ pip3 install django-cors-headers
-        >$ pip3 install graphene-django
-        >$ pip3 install graphene-django
-        >$ pip3 install psycopg2-binary
-        >$ pip3 install django-filter
+    2) SET UP YOUR POSTGRESQL SERVER
 
+        Go here to download the correct server for your OS: https://www.postgresql.org/download/. Once you have a postgresql server up and running locally on port 5432, you will need to use the GUI tool PGadmin4 or the command line tool pg_restore to restore the latest data dump into the database. The dump can be found in backend/data-dump.
 
-    ###### Clone repo:
+    3) GET THE REPO: 
+
+    Clone repo:
         >$ git clone https://github.com/jackdwayne/arrhythmia_project.git
 
-    ###### Dependancy Setup:
-    In terminal or code cd to frontend folder
-        With yarn:
-            > $ yarn
-        With npm:
-            > $ npm install
+    4) BUILD THE PROJECT
 
-    ###### How to run locally:
-    cd in one terminal to backend:
+    Virtual environment setup:
+    navigate to the backend folder and run these commands
+
+        >$ sudo apt-get install python3-venv
+        >$ python3 -m venv mypthonenv
+        >$ source mypythonenv/bin/activate
+        >$ pip3 install django djangorestframework django-filter django-rest-auth django-cors-headers psycopg2-binary pandas scikit-learn joblib gunicorn django-debug-toolbar tensorflow tensorflow-addons wfdb
+
+    NOTE: you may need to install tensorflow again because of a numpy dependency problem during isntallation. Easy fix
+
+    Now, navigate to the frontend folder and run
+
+    With yarn:
+        > $ yarn install
+    With npm:
+        > $ npm install
+
+    Your frontend dependencies and backend dependencies are now built correctly. Lastly, go to the LSMT_CLASSIFICATION directory and unzip the .zip file to the patient_db directory.
+
+    5) RUN THE PROJECT
+
+    cd in one terminal to backend WHILE INSIDE PYTHON VENV:
         >$ python manage.py runserver
     cd in another terminal to frontend:
         >$ yarn start
