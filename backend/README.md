@@ -13,7 +13,6 @@ Dependencies:
 - joblib
 - psycopg2-binary
 - scikit-learn
-- sqlalchemy
 - tensorflow
 - tensorflow-addons
 - wfdb

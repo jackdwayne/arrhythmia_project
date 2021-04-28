@@ -8,6 +8,8 @@ Main components of patientdb app:
         python3 manage.py makemigrations
         python3 manage.py migrate
     Depending on the significance of the changes, the database may need to remade before applying migrations.
+    The file 'Arrythimias ERD Diagram.pdf' contains both the current state of the models and our recommendations
+    for changing the models in the future to accomodate additional features.
 - serializers.py
     Handles the pagination of querying patient signal data for faster and more responsive output in the frontend.
 - urls.py
@@ -67,3 +69,14 @@ Given an input following this format, the machine learning model will return eit
 
 The machine learning model is currently used in the Predict_Signals view contained in views.py 
 (query will need to change with attribute changes in models.py).
+
+Additional (trained) machine learning models to the backend (more on adding trained models below) 
+can be used with data gathered with queries to the database, then predicted annotations can be sent to the frontend
+with a HTTP response similar to the one in the predict signals view in views.py.
+
+## Adding Trained Machine Learning Models to Backend
+Any trained model can be added to the backend by placing it somewhere in the backend folder 
+(which is considered as the working directory, obtainable by calling os.path.abspath(''))
+or any of its subdirectories. The Django server can then interact with the model using data
+from the database it is connected to, assuming additional dependencies for the model are installed
+and the data queried is formatted correctly to be interpreted by the model.
