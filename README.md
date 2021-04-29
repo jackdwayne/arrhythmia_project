@@ -73,7 +73,7 @@ The team can work on the MIT open source dataset (https://physionet.org/content/
         or
         >$ npm start
 
-## Building Docker Image
+## Building Docker Image (Currently Deprecated)
 
 Assuming docker is installed in your system:  
 
@@ -87,5 +87,5 @@ Assuming docker is installed in your system:
     ```
 
 If the image is up:
-* The backend will be located in localhost:8000/graphql
+* The backend will be located in localhost:8000
 * The frontend will be located in localhost:3000
